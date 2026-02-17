@@ -74,13 +74,17 @@ def fmt_change(c):
     return f'<span style="color:#9ca3af">─ {c:.2f}%</span>'
 
 # ── 2. FRED 경제지표 ───────────────────────────────────
-def fetch_fred(series_id, limit=24):
+def fetch_fred(series_id, limit=36):
     try:
         r = requests.get(FRED, params={
             "series_id": series_id, "api_key": FRED_API_KEY,
             "file_type": "json", "sort_order": "desc", "limit": limit
-        }, timeout=10)
-        obs = [o for o in r.json()["observations"] if o["value"] != "."]
+        }, timeout=15)
+        data = r.json()
+        if "observations" not in data:
+            print(f"  ⚠️  FRED {series_id} 응답 이상: {list(data.keys())}")
+            return {"x": [], "y": []}
+        obs = [o for o in data["observations"] if o["value"] != "."]
         obs.reverse()
         return {
             "x": [o["date"] for o in obs],
@@ -97,14 +101,17 @@ def fred_yoy(series_id):
             "series_id": series_id, "api_key": FRED_API_KEY,
             "file_type": "json", "observation_start": "2022-01-01",
             "sort_order": "asc"
-        }, timeout=10)
-        obs = [o for o in r.json()["observations"] if o["value"] != "."]
+        }, timeout=15)
+        data = r.json()
+        if "observations" not in data:
+            print(f"  ⚠️  FRED YoY {series_id} 응답 이상: {list(data.keys())}")
+            return {"x": [], "y": []}
+        obs = [o for o in data["observations"] if o["value"] != "."]
         result_x, result_y = [], []
         val_map = {o["date"]: float(o["value"]) for o in obs}
         dates = [o["date"] for o in obs if o["date"] >= "2023-01-01"]
         for d in dates:
             cur = val_map.get(d)
-            # 1년 전 날짜 근사
             prev_date = f"{int(d[:4])-1}{d[4:]}"
             prev_candidates = [k for k in val_map if k <= prev_date]
             if not prev_candidates: continue
@@ -321,85 +328,120 @@ def build_html(mkt, headline, summary_body, keyline,
         ps = f"{prefix}{p:,.{decimals}f}" if p else "N/A"
         color = "#e53e3e" if c >= 0 else "#3182ce"
         arrow = "▲" if c >= 0 else "▼"
-        return f'<div class="card"><div class="card-label">{label}</div><div class="card-value">{ps}</div><div class="card-change" style="color:{color}">{arrow} {abs(c):.2f}%</div></div>'
+        return (f'<div class="card"><div class="card-label">{label}</div>'
+                f'<div class="card-value">{ps}</div>'
+                f'<div class="card-change" style="color:{color}">{arrow} {abs(c):.2f}%</div></div>')
 
-    # 공포탐욕 — 실제 API 없으므로 VIX 기반 추정
+    # 공포탐욕 — VIX 기반 추정
     vix_val = mkt.get("VIX", {}).get("price", 25)
     cnn_fg = max(5, min(95, int(100 - vix_val * 2.5)))
 
     # HTML 템플릿 읽기
     with open("templates/dashboard.html", "r") as f:
-        tmpl = f.read()
+        html = f.read()
 
-    return tmpl.format(
-        TODAY_STR=TODAY_STR,
-        HEADLINE=headline,
-        SUMMARY_BODY=summary_body,
-        KEYLINE=keyline,
-        ISSUES_HTML=issues_html,
-        # 지수 카드
-        CARD_SP500   = card("S&P 500",   "SP500",   decimals=2),
-        CARD_NASDAQ  = card("NASDAQ",    "NASDAQ",  decimals=2),
-        CARD_DOW     = card("Dow Jones", "DOW",     decimals=2),
-        CARD_RUSSELL = card("Russell 2000","RUSSELL",decimals=2),
-        CARD_VIX     = card("VIX",       "VIX",     decimals=2),
-        # 원자재 카드
-        CARD_GOLD    = card("금 (XAU/USD)",  "GOLD",   "$", decimals=0),
-        CARD_SILVER  = card("은 (XAG/USD)",  "SILVER", "$", decimals=2),
-        CARD_OIL     = card("WTI 원유",      "OIL",    "$", decimals=2),
-        CARD_COPPER  = card("구리",          "COPPER", "$", decimals=3),
-        # 환율 카드
-        CARD_DXY = card("달러인덱스", "DXY",  decimals=2),
-        CARD_KRW = card("원/달러",   "KRW",  decimals=2),
-        CARD_JPY = card("엔/달러",   "JPY",  decimals=2),
-        CARD_CNY = card("위안/달러", "CNY",  decimals=3),
-        # 코인
-        CARD_BTC = card("Bitcoin", "BTC", "$", decimals=0),
-        CARD_ETH = card("Ethereum","ETH", "$", decimals=0),
-        CARD_SOL = card("Solana",  "SOL", "$", decimals=2),
-        # 게이지
-        CNN_FG=cnn_fg,
-        # 콘텐츠
-        MACRO_HTML=macro_html,
-        CN_BRIEF=cn_brief.replace("\n", "<br>"),
-        JP_BRIEF=jp_brief.replace("\n", "<br>"),
-        # FRED 차트 스크립트
-        FRED_SCRIPT=fred_script,
-        FRED_KEY=FRED_API_KEY,
-    )
+    # ── str.format() 대신 직접 replace() 사용 ──
+    # CSS의 {box-sizing} 등 중괄호와 충돌하지 않음
+
+    replacements = {
+        "{TODAY_STR}":   TODAY_STR,
+        "{HEADLINE}":    headline,
+        "{SUMMARY_BODY}": summary_body,
+        "{KEYLINE}":     keyline,
+        "{ISSUES_HTML}": issues_html,
+        "{CARD_SP500}":  card("S&P 500",      "SP500",   decimals=2),
+        "{CARD_NASDAQ}": card("NASDAQ",        "NASDAQ",  decimals=2),
+        "{CARD_DOW}":    card("Dow Jones",     "DOW",     decimals=2),
+        "{CARD_RUSSELL}":card("Russell 2000",  "RUSSELL", decimals=2),
+        "{CARD_VIX}":    card("VIX",           "VIX",     decimals=2),
+        "{CARD_GOLD}":   card("금 (XAU/USD)",  "GOLD",    "$", decimals=0),
+        "{CARD_SILVER}": card("은 (XAG/USD)",  "SILVER",  "$", decimals=2),
+        "{CARD_OIL}":    card("WTI 원유",      "OIL",     "$", decimals=2),
+        "{CARD_COPPER}": card("구리",          "COPPER",  "$", decimals=3),
+        "{CARD_DXY}":    card("달러인덱스",    "DXY",     decimals=2),
+        "{CARD_KRW}":    card("원/달러",       "KRW",     decimals=2),
+        "{CARD_JPY}":    card("엔/달러",       "JPY",     decimals=2),
+        "{CARD_CNY}":    card("위안/달러",     "CNY",     decimals=3),
+        "{CARD_BTC}":    card("Bitcoin",       "BTC",     "$", decimals=0),
+        "{CARD_ETH}":    card("Ethereum",      "ETH",     "$", decimals=0),
+        "{CARD_SOL}":    card("Solana",        "SOL",     "$", decimals=2),
+        "{CNN_FG}":      str(cnn_fg),
+        "{MACRO_HTML}":  macro_html,
+        "{CN_BRIEF}":    cn_brief.replace("\n", "<br>"),
+        "{JP_BRIEF}":    jp_brief.replace("\n", "<br>"),
+        "{FRED_SCRIPT}": fred_script,
+        "{ANTHROPIC_KEY}": ANTHROPIC_API_KEY,
+        "{FRED_KEY}":    FRED_API_KEY,
+    }
+
+    for placeholder, value in replacements.items():
+        html = html.replace(placeholder, str(value))
+
+    return html
 
 # ── 6. 실행 ───────────────────────────────────────────
 def main():
     print(f"🚀 대시보드 생성 시작 — {TODAY_STR}")
 
     print("  📊 시장 데이터 수집 중...")
-    mkt = fetch_market_data()
+    try:
+        mkt = fetch_market_data()
+    except Exception as e:
+        print(f"  ⚠️  시장 데이터 실패: {e}")
+        mkt = {}
 
     print("  📈 FRED 경제지표 수집 중...")
-    cpi      = fred_yoy("CPIAUCSL")
-    core_cpi = fred_yoy("CPILFESL")
-    unrate   = fetch_fred("UNRATE")
-    fedfunds = fetch_fred("FEDFUNDS")
-    dgs10    = fetch_fred("DGS10")
-    dgs2     = fetch_fred("DGS2")
-    fred_script = build_fred_script(cpi, core_cpi, unrate, fedfunds, dgs10, dgs2)
+    try:
+        cpi      = fred_yoy("CPIAUCSL")
+        core_cpi = fred_yoy("CPILFESL")
+        unrate   = fetch_fred("UNRATE")
+        fedfunds = fetch_fred("FEDFUNDS")
+        dgs10    = fetch_fred("DGS10")
+        dgs2     = fetch_fred("DGS2")
+        fred_script = build_fred_script(cpi, core_cpi, unrate, fedfunds, dgs10, dgs2)
+        print(f"  ✅ FRED 완료 (CPI:{len(cpi['x'])}개 포인트)")
+    except Exception as e:
+        print(f"  ⚠️  FRED 전체 실패: {e}")
+        fred_script = "// FRED 데이터 없음"
 
     print("  ✍️  시황 생성 중...")
-    headline, summary_body, keyline = gen_daily_summary(mkt)
+    try:
+        headline, summary_body, keyline = gen_daily_summary(mkt)
+    except Exception as e:
+        print(f"  ⚠️  시황 생성 실패: {e}")
+        headline = f"{TODAY_STR} 시장 마감 시황"
+        summary_body = "시황 데이터를 불러오는 중 오류가 발생했습니다."
+        keyline = "데이터 로딩 중"
 
     print("  📰 이슈 생성 중...")
-    issues_text = gen_issues(mkt)
-    issues_html = build_issue_rows(issues_text)
+    try:
+        issues_text = gen_issues(mkt)
+        issues_html = build_issue_rows(issues_text)
+    except Exception as e:
+        print(f"  ⚠️  이슈 생성 실패: {e}")
+        issues_html = '<div class="issue-row">• 이슈 데이터 로딩 중...</div>'
 
     print("  🌐 매크로 뉴스레터 생성 중...")
-    macro_topics = gen_macro_newsletter(mkt)
-    macro_html   = build_macro_topics(macro_topics)
+    try:
+        macro_topics = gen_macro_newsletter(mkt)
+        macro_html   = build_macro_topics(macro_topics)
+    except Exception as e:
+        print(f"  ⚠️  뉴스레터 생성 실패: {e}")
+        macro_html = '<p class="nl-body">뉴스레터 데이터 로딩 중...</p>'
 
     print("  🇨🇳 중국·홍콩 브리핑...")
-    cn_brief = gen_regional_brief("cn")
+    try:
+        cn_brief = gen_regional_brief("cn")
+    except Exception as e:
+        print(f"  ⚠️  중국 브리핑 실패: {e}")
+        cn_brief = "중국·홍콩 데이터 로딩 중..."
 
     print("  🇯🇵 일본 브리핑...")
-    jp_brief = gen_regional_brief("jp")
+    try:
+        jp_brief = gen_regional_brief("jp")
+    except Exception as e:
+        print(f"  ⚠️  일본 브리핑 실패: {e}")
+        jp_brief = "일본 데이터 로딩 중..."
 
     print("  🔨 HTML 조립 중...")
     html = build_html(mkt, headline, summary_body, keyline,
@@ -409,7 +451,6 @@ def main():
     out_path = Path("docs/index.html")
     out_path.parent.mkdir(exist_ok=True)
     out_path.write_text(html, encoding="utf-8")
-
     print(f"  ✅ 완료! → docs/index.html ({len(html):,}bytes)")
 
 if __name__ == "__main__":
