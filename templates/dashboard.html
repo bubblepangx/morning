@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Daily US Market Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans KR',sans-serif;background:#f8f9fb;color:#1a1a2e;line-height:1.7}
+
+  .site-header{background:#fff;border-bottom:1px solid #e8eaed;padding:36px 24px 28px;text-align:center}
+  .site-header h1{font-family:'DM Serif Display',serif;font-size:2.1rem;font-weight:400;color:#111;letter-spacing:-0.5px}
+  .site-header .meta{font-size:0.82rem;color:#9ca3af;margin-top:8px;letter-spacing:0.3px}
+  .site-header .meta span{color:#374151;font-weight:600}
+
+  .wrap{max-width:900px;margin:0 auto;padding:32px 20px}
+
+  .block{background:#fff;border-radius:14px;padding:28px 32px;margin-bottom:24px;border:1px solid #e8eaed}
+  .block-title{font-size:0.72rem;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+  .block-title::after{content:'';flex:1;height:1px;background:#f0f0f0}
+  .block-title .src{color:#3b82f6;font-weight:500;text-transform:none;letter-spacing:0;font-size:0.75rem}
+  .block-title .src2{color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0;font-size:0.75rem}
+
+  .article-headline{font-family:'DM Serif Display',serif;font-size:1.6rem;font-weight:400;color:#111;line-height:1.4;margin-bottom:22px}
+  .summary-body{font-size:0.94rem;line-height:2.05;color:#374151;white-space:pre-wrap}
+  .summary-keyline{margin-top:22px;padding:14px 18px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:0.9rem;color:#92400e;line-height:1.7}
+
+  .issue-row{font-size:0.88rem;line-height:1.7;color:#374151;padding:10px 0;border-bottom:1px solid #f3f4f6}
+  .issue-row:last-child{border-bottom:none}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .card{background:#f9fafb;border:1px solid #e8eaed;border-radius:10px;padding:14px;text-align:center}
+  .card-label{font-size:0.7rem;color:#9ca3af;margin-bottom:5px;font-weight:600;letter-spacing:0.3px}
+  .card-value{font-size:1.1rem;font-weight:700;color:#111;margin-bottom:3px}
+  .card-change{font-size:0.8rem;font-weight:600}
+
+  .chart-label{font-size:0.78rem;font-weight:700;color:#6b7280;letter-spacing:0.5px;text-transform:uppercase;margin:28px 0 8px}
+  .chart-label:first-child{margin-top:0}
+  .tv-placeholder{width:100%;border-radius:10px;border:1px solid #e8eaed;background:#f9fafb;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9ca3af;font-size:0.82rem;gap:4px}
+  .chart-box{margin-bottom:20px}
+
+  .subsection-label{font-size:0.72rem;font-weight:700;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid #f3f4f6}
+
+  .nl-topic{font-size:0.95rem;font-weight:700;color:#111;margin:22px 0 8px;padding:10px 14px;background:#f0f4ff;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0}
+  .nl-topic:first-child{margin-top:0}
+  .nl-topic.cn{background:#fff1f0;border-left-color:#ef4444}
+  .nl-topic.jp{background:#fff8f0;border-left-color:#f97316}
+  .nl-body{font-size:0.9rem;line-height:1.95;color:#374151;margin-bottom:12px}
+  .nl-meta{font-size:0.78rem;color:#9ca3af;margin-bottom:14px}
+
+  .new-badge{display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px;letter-spacing:0.5px;vertical-align:middle}
+
+  /* 공포탐욕 게이지 */
+  .fg-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .fg-item{text-align:center}
+  .fg-title{font-size:0.78rem;color:#6b7280;font-weight:600;margin-bottom:8px}
+  .fg-history{font-size:0.75rem;color:#9ca3af;margin-top:8px;display:flex;justify-content:center;gap:16px}
+
+  /* Truflation */
+  .tru-box{background:linear-gradient(135deg,#1e3a5f,#0d2137);border-radius:12px;padding:20px 24px;color:#fff;display:flex;align-items:flex-start;gap:24px;margin-bottom:16px;flex-wrap:wrap}
+  .tru-left .tru-tag{font-size:0.7rem;color:#93c5fd;font-weight:600;letter-spacing:0.5px;margin-bottom:6px}
+  .tru-left .tru-val{font-size:2.6rem;font-weight:700;line-height:1;letter-spacing:-1px}
+  .tru-left .tru-chg{font-size:0.8rem;background:rgba(255,255,255,0.12);border-radius:20px;padding:3px 10px;margin-top:8px;display:inline-block}
+  .tru-left .tru-bls{font-size:0.75rem;color:#93c5fd;margin-top:10px}
+  .tru-right{flex:1;min-width:180px;font-size:0.78rem;color:#93c5fd;line-height:1.9}
+
+  /* AI 로딩 */
+  .ai-loading{display:flex;align-items:center;gap:10px;padding:16px;background:#f8f9fb;border-radius:8px;color:#6b7280;font-size:0.85rem;margin-bottom:8px}
+  .spinner{width:16px;height:16px;border:2px solid #e5e7eb;border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media(max-width:600px){
+    .cards{grid-template-columns:repeat(2,1fr)}
+    .fg-wrap{grid-template-columns:1fr}
+    .wrap{padding:16px 14px}
+    .block{padding:20px 18px}
+    .article-headline{font-size:1.3rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <h1>Daily US Market Dashboard</h1>
+  <div class="meta"><span>{TODAY_STR}</span> &nbsp;|&nbsp; 자동 생성 &nbsp;|&nbsp; 07:00 KST</div>
+</div>
+
+<div class="wrap">
+
+<!-- 1. 데일리 시황 -->
+<div class="block">
+  <div class="block-title">데일리 시장 마감 시황 <span class="src">Claude AI · web search</span></div>
+  <div class="article-headline">{HEADLINE}</div>
+  <div class="summary-body">{SUMMARY_BODY}</div>
+  <div class="summary-keyline"><strong>핵심 한 줄</strong> &nbsp;{KEYLINE}</div>
+</div>
+
+<!-- 2. 주요 이슈 -->
+<div class="block">
+  <div class="block-title">오늘의 주요 이슈 <span class="src">Claude AI</span></div>
+  {ISSUES_HTML}
+  </div>
+
+<!-- 3. 주요 지수 카드 -->
+<div class="block">
+  <div class="block-title">주요 지수 <span class="src2">yfinance</span></div>
+  <div class="cards">
+    <div class="card"><div class="card-label">S&P 500</div><div class="card-value">6,836.17</div><div class="card-change" style="color:#e53e3e">▲ 0.05%</div></div>
+    <div class="card"><div class="card-label">NASDAQ</div><div class="card-value">22,546.67</div><div class="card-change" style="color:#3182ce">▼ 0.22%</div></div>
+    <div class="card"><div class="card-label">Dow Jones</div><div class="card-value">49,500.93</div><div class="card-change" style="color:#e53e3e">▲ 0.10%</div></div>
+    <div class="card"><div class="card-label">Russell 2000</div><div class="card-value">2,295.82</div><div class="card-change" style="color:#e53e3e">▲ 1.18%</div></div>
+    <div class="card"><div class="card-label">VIX</div><div class="card-value">20.61</div><div class="card-change" style="color:#e53e3e">▲ 0.78%</div></div>
+  </div>
+</div>
+
+<!-- 4. 지수 캔들차트 -->
+<div class="block">
+  <div class="block-title">지수 캔들차트 <span class="src2">TradingView · ETF 티커</span></div>
+  <div class="chart-label" style="margin-top:0">S&P 500 — SPY</div>
+  <div id="tv_spy" style="height:200px;margin-bottom:20px"></div>
+  <div class="chart-label">NASDAQ — QQQ</div>
+  <div id="tv_qqq" style="height:200px;margin-bottom:20px"></div>
+  <div class="chart-label">Dow Jones — DIA</div>
+  <div id="tv_dia" style="height:200px;margin-bottom:20px"></div>
+  <div class="chart-label">Russell 2000 — IWM</div>
+  <div id="tv_iwm" style="height:200px"></div>
+</div>
+
+<!-- 5. 히트맵 -->
+<div class="block">
+  <div class="block-title">S&P 500 섹터 히트맵 <span class="src2">TradingView</span> <span class="new-badge">NEW</span></div>
+  <div class="tradingview-widget-container" id="tv_heatmap_wrap" style="height:400px">
+    <div class="tradingview-widget-container__widget" style="height:400px"></div>
+  </div>
+</div>
+
+<!-- 6. 공포탐욕 — 색상 아크 게이지 -->
+<div class="block">
+  <div class="block-title">공포 &amp; 탐욕 지수 <span class="src2">CNN · alternative.me</span></div>
+  <div class="fg-wrap">
+    <div class="fg-item">
+      <div class="fg-title">📺 CNN 공포탐욕지수 (주식시장)</div>
+      <canvas id="gauge-cnn" width="220" height="135" style="max-width:100%"></canvas>
+      <div class="fg-history">
+        <span>어제 <strong style="color:#374151">38</strong></span>
+        <span>지난주 <strong style="color:#374151">42</strong></span>
+        <span>지난달 <strong style="color:#374151">55</strong></span>
+      </div>
+    </div>
+    <div class="fg-item">
+      <div class="fg-title">₿ 크립토 공포탐욕지수</div>
+      <canvas id="gauge-crypto" width="220" height="135" style="max-width:100%"></canvas>
+      <div class="fg-history">
+        <span>어제 <strong style="color:#374151">9</strong></span>
+        <span>지난주 <strong style="color:#374151">11</strong></span>
+        <span>지난달 <strong style="color:#374151">67</strong></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6-1. MOVE 지수 & 풋콜비율 -->
+<div class="block">
+  <div class="block-title">변동성 지표 <span class="src2">CBOE</span> <span class="new-badge">NEW</span></div>
+  <div class="chart-label" style="margin-top:0">MOVE Index — 채권 변동성 지수</div>
+  <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">
+    ICE BofAML MOVE Index &nbsp;|&nbsp; 현재 <strong style="color:#374151">92.4</strong> &nbsp;▲ +1.8 전일比 &nbsp;|&nbsp; 100 이상 = 고변동성 구간
+  </div>
+  <div id="chart-move" style="width:100%;height:220px"></div>
+
+  <div class="chart-label">Put/Call Ratio — 풋콜 비율 (CBOE Total)</div>
+  <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">
+    현재 <strong style="color:#374151">1.12</strong> &nbsp;▲ +0.08 &nbsp;|&nbsp; 1.0 이상 = 공포(풋 우세) &nbsp;|&nbsp; 0.7 이하 = 과열(콜 우세)
+  </div>
+  <div id="chart-pcc" style="width:100%;height:220px"></div>
+</div>
+
+<!-- 7. 환율 & 원자재 -->
+<div class="block">
+  <div class="block-title">환율 &amp; 원자재 <span class="src2">yfinance · TradingView</span></div>
+  <div class="subsection-label">환율</div>
+  <div class="cards">
+    <div class="card"><div class="card-label">달러인덱스</div><div class="card-value">97.04</div><div class="card-change" style="color:#e53e3e">▲ 0.12%</div></div>
+    <div class="card"><div class="card-label">원 / 달러</div><div class="card-value">1,443.20</div><div class="card-change" style="color:#3182ce">▼ 0.31%</div></div>
+    <div class="card"><div class="card-label">엔 / 달러</div><div class="card-value">151.82</div><div class="card-change" style="color:#e53e3e">▲ 0.08%</div></div>
+    <div class="card"><div class="card-label">위안 / 달러</div><div class="card-value">7.244</div><div class="card-change" style="color:#e53e3e">▲ 0.05%</div></div>
+  </div>
+
+  <div class="subsection-label" style="margin-top:22px">원자재 — 가격 스냅샷</div>
+  <div class="cards">
+    <div class="card"><div class="card-label">금 (XAU/USD)</div><div class="card-value">$2,891</div><div class="card-change" style="color:#e53e3e">▲ 0.42%</div></div>
+    <div class="card"><div class="card-label">은 (XAG/USD)</div><div class="card-value">$32.14</div><div class="card-change" style="color:#3182ce">▼ 0.18%</div></div>
+    <div class="card"><div class="card-label">WTI 원유</div><div class="card-value">$70.82</div><div class="card-change" style="color:#3182ce">▼ 0.90%</div></div>
+    <div class="card"><div class="card-label">구리 (HG1!)</div><div class="card-value">$4.52</div><div class="card-change" style="color:#e53e3e">▲ 0.22%</div></div>
+  </div>
+
+  <div class="subsection-label" style="margin-top:22px">원자재 — TradingView 차트</div>
+  <div class="chart-label" style="margin-top:0">금 — TVC:GOLD (XAU/USD)</div>
+  <div id="tv_gold" style="height:200px;margin-bottom:20px"></div>
+  <div class="chart-label">은 — TVC:SILVER (XAG/USD)</div>
+  <div id="tv_silver" style="height:200px;margin-bottom:20px"></div>
+  <div class="chart-label">WTI 원유 — TVC:USOIL</div>
+  <div id="tv_wti" style="height:200px;margin-bottom:20px"></div>
+  <div class="chart-label">구리 — CAPITALCOM:COPPER</div>
+  <div id="tv_copper" style="height:200px"></div>
+</div>
+
+<!-- 8. DXY -->
+<div class="block">
+  <div class="block-title">달러 인덱스 <span class="src2">TradingView · TVC:DXY</span></div>
+  <div class="chart-label" style="margin-top:0">US Dollar Index (DXY) — CAPITALCOM:DXY</div>
+  <div id="tv_dxy" style="height:200px"></div>
+</div>
+
+<!-- 9. FRED 경제지표 -->
+<div class="block">
+  <div class="block-title">경제지표 <span class="src2">FRED API</span></div>
+  <div class="chart-box">
+    <div class="chart-label" style="margin-top:0">물가 지표 YoY %</div>
+    <div id="fred1" style="width:100%;height:260px"></div>
+  </div>
+  <div class="chart-box">
+    <div class="chart-label">실업률 &amp; Fed 금리 %</div>
+    <div id="fred2" style="width:100%;height:260px"></div>
+  </div>
+  <div class="chart-box">
+    <div class="chart-label">국채 수익률 %</div>
+    <div id="fred3" style="width:100%;height:260px"></div>
+  </div>
+</div>
+
+<!-- 9-1. Truflation -->
+<div class="block">
+  <div class="block-title">Truflation 실시간 인플레이션 <span class="src2">TruCPI-US</span> <span class="new-badge">NEW</span></div>
+
+  <div class="tru-box">
+    <div class="tru-left">
+      <div class="tru-tag">🇺🇸 TruCPI-US &nbsp;·&nbsp; Year on Year &nbsp;·&nbsp; 일일 업데이트</div>
+      <div class="tru-val">0.74%</div>
+      <div class="tru-chg">▼ &minus;0.04 전일比</div>
+      <div class="tru-bls">BLS 공식 발표: 2.70% &nbsp;|&nbsp; YTD Low 0.68% · High 1.95%</div>
+    </div>
+    <div class="tru-right">
+      <div>30개 이상 실시간 데이터 소스 기반 물가 측정.</div>
+      <div>공식 CPI보다 선행 지표 역할.</div>
+      <div style="margin-top:8px;color:#60a5fa">📌 공식 CPI(2.70%) 대비 <strong style="color:#fff">약 1.96%p 낮음</strong></div>
+      <div style="color:#60a5fa">→ 실질 물가 압력 빠르게 하락 중 시사</div>
+    </div>
+  </div>
+
+  <div class="chart-label" style="margin-top:0">Truflation YoY % — 최근 1년 일별 추이</div>
+  <div id="truflation-chart" style="width:100%;height:260px"></div>
+
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <span style="font-size:0.72rem;background:#dbeafe;color:#1e40af;padding:3px 10px;border-radius:20px">Goods</span>
+    <span style="font-size:0.72rem;background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px">Core</span>
+    <span style="font-size:0.72rem;background:#fce7f3;color:#9d174d;padding:3px 10px;border-radius:20px">Services</span>
+    <span style="font-size:0.72rem;background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:20px">PCE</span>
+    <span style="font-size:0.72rem;color:#9ca3af;margin-left:4px">성분별 비교 → truflation.com</span>
+  </div>
+</div>
+
+<!-- 10. 코인 히트맵 -->
+<div class="block">
+  <div class="block-title">코인 섹터 히트맵 <span class="src2">TradingView · CoinMarketCap</span> <span class="new-badge">NEW</span></div>
+  <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:12px">시가총액 기준 블록 크기 · 등락률 기준 색상 (빨강=하락 / 파랑=상승)</div>
+  <div class="tradingview-widget-container" id="tv_crypto_heatmap_wrap" style="height:480px">
+    <div class="tradingview-widget-container__widget" style="height:480px"></div>
+  </div>
+</div>
+
+<!-- 11. 코인 캔들차트 -->
+<div class="block">
+  <div class="block-title">코인 캔들차트 <span class="src2">TradingView · Binance</span></div>
+  <div class="chart-label" style="margin-top:0">Bitcoin — BTC/USDT</div>
+  <div id="tv_btc" style="height:200px;margin-bottom:20px"></div>
+  <div class="chart-label">Ethereum — ETH/USDT</div>
+  <div id="tv_eth" style="height:200px;margin-bottom:20px"></div>
+  <div class="chart-label">Solana — SOL/USDT</div>
+  <div id="tv_sol" style="height:200px"></div>
+</div>
+
+<!-- 12. 글로벌 매크로 뉴스레터 -->
+<div class="block">
+  <div class="block-title">글로벌 매크로 뉴스레터 <span class="src">Claude AI · 애널리스트 리포트</span></div>
+{MACRO_HTML}
+  
+
+  <!-- 중국·홍콩 AI 요약 -->
+  <div class="nl-topic cn">🇨🇳 중국 · 홍콩 증시 브리핑 <span style="font-size:0.7rem;font-weight:400;color:#9ca3af">Claude AI 자동 요약</span></div>
+  <div id="cn-news-wrap"><p class="nl-body" style="white-space:pre-line">{CN_BRIEF}</p><div class="nl-meta">Claude AI 자동 요약 · {TODAY_STR}</div></div><span>Claude AI가 중국·홍콩 시장 소식을 요약 중...</span></div>
+  </div>
+
+  <!-- 일본 AI 요약 -->
+  <div class="nl-topic jp">🇯🇵 일본 증시 브리핑 <span style="font-size:0.7rem;font-weight:400;color:#9ca3af">Claude AI 자동 요약</span></div>
+  <div id="jp-news-wrap"><p class="nl-body" style="white-space:pre-line">{JP_BRIEF}</p><div class="nl-meta">Claude AI 자동 요약 · {TODAY_STR}</div></div><span>Claude AI가 일본 시장 소식을 요약 중...</span></div>
+  </div>
+</div>
+
+<!-- 13. ETF·VIX -->
+<div class="block">
+  <div class="block-title">주요 ETF &amp; VIX <span class="src2">TradingView</span></div>
+  <div class="chart-label" style="margin-top:0">XLE — 에너지</div>
+  <div id="tv_xle" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">SOXX — 반도체</div>
+  <div id="tv_soxx" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">ARKK — 혁신</div>
+  <div id="tv_arkk" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">RSP — S&P 동일가중</div>
+  <div id="tv_rsp" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label" style="color:#e53e3e">VIX — 변동성지수 (VIXY)</div>
+  <div id="tv_vix" style="height:160px"></div>
+</div>
+
+<!-- 14. 종목 -->
+<div class="block">
+  <div class="block-title">빅테크 &amp; 주요 종목 <span class="src2">TradingView</span></div>
+  <div class="chart-label" style="margin-top:0">AAPL</div>
+  <div id="tv_aapl" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">NVDA</div>
+  <div id="tv_nvda" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">MSFT</div>
+  <div id="tv_msft" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">TSLA</div>
+  <div id="tv_tsla" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">META</div>
+  <div id="tv_meta" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">MSTR</div>
+  <div id="tv_mstr" style="height:160px;margin-bottom:20px"></div>
+  <div class="chart-label">COIN</div>
+  <div id="tv_coin" style="height:160px"></div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- TradingView -->
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script>
+function tvW(id, sym, h, interval) {
+  if (typeof TradingView === 'undefined') return;
+  new TradingView.widget({
+    autosize: false, width: '100%', height: h || 200,
+    symbol: sym, interval: interval || 'D',
+    timezone: 'Asia/Seoul', theme: 'light', style: '1', locale: 'kr',
+    toolbar_bg: '#f8f9fb', enable_publishing: false,
+    hide_side_toolbar: true, allow_symbol_change: false, save_image: false,
+    container_id: id
+  });
+}
+
+window.addEventListener('load', function() {
+  // 지수 ETF
+  tvW('tv_spy','AMEX:SPY',200); tvW('tv_qqq','NASDAQ:QQQ',200);
+  tvW('tv_dia','AMEX:DIA',200); tvW('tv_iwm','AMEX:IWM',200);
+  // 원자재
+  // 원자재 — !포함 선물심볼은 embed 불가 → TVC 심볼로 교체
+  tvW('tv_gold','TVC:GOLD',200);    // 금 (XAU)
+  tvW('tv_silver','TVC:SILVER',200); // 은 (XAG)
+  tvW('tv_wti','TVC:USOIL',200);    // WTI 원유
+  tvW('tv_copper','CAPITALCOM:COPPER',200); // 구리 현물
+  // DXY
+  tvW('tv_dxy','CAPITALCOM:DXY',200);
+  // 코인
+  tvW('tv_btc','BINANCE:BTCUSDT',200); tvW('tv_eth','BINANCE:ETHUSDT',200);
+  tvW('tv_sol','BINANCE:SOLUSDT',200);
+  // ETF & VIX
+  tvW('tv_xle','AMEX:XLE',160); tvW('tv_soxx','NASDAQ:SOXX',160);
+  tvW('tv_arkk','AMEX:ARKK',160); tvW('tv_rsp','AMEX:RSP',160);
+  tvW('tv_vix','AMEX:VIXY',160); // VIX 직접 embed 차단 → VIXY(VIX 단기선물 ETF)로 대체
+  // 종목
+  tvW('tv_aapl','NASDAQ:AAPL',160); tvW('tv_nvda','NASDAQ:NVDA',160);
+  tvW('tv_msft','NASDAQ:MSFT',160); tvW('tv_tsla','NASDAQ:TSLA',160);
+  tvW('tv_meta','NASDAQ:META',160); tvW('tv_mstr','NASDAQ:MSTR',160);
+  tvW('tv_coin','NASDAQ:COIN',160);
+  // 코인 히트맵
+  try {
+    var cryptoHM = document.createElement('script');
+    cryptoHM.type = 'text/javascript';
+    cryptoHM.src = 'https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js';
+    cryptoHM.async = true;
+    cryptoHM.innerHTML = JSON.stringify({
+      dataSource: 'Crypto',
+      blockSize: 'market_cap_calc',
+      blockColor: 'change',
+      locale: 'kr',
+      symbolUrl: '',
+      colorTheme: 'light',
+      hasTopBar: true,
+      isDataSetEnabled: true,
+      isZoomEnabled: true,
+      hasSymbolTooltip: true,
+      width: '100%',
+      height: 480
+    });
+    document.querySelector('#tv_crypto_heatmap_wrap .tradingview-widget-container__widget').appendChild(cryptoHM);
+  } catch(e) {
+    document.getElementById('tv_crypto_heatmap_wrap').innerHTML =
+      '<div style="height:480px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:0.82rem;background:#f9fafb;border-radius:10px;border:1px solid #e8eaed">📊 코인 히트맵 로딩 실패</div>';
+  }
+  try {
+    var heatmapScript = document.createElement('script');
+    heatmapScript.type = 'text/javascript';
+    heatmapScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js';
+    heatmapScript.async = true;
+    heatmapScript.innerHTML = JSON.stringify({
+      exchanges: [],
+      dataSource: 'SPX500',
+      grouping: 'sector',
+      blockSize: 'market_cap_basic',
+      blockColor: 'change',
+      locale: 'kr',
+      symbolUrl: '',
+      colorTheme: 'light',
+      hasTopBar: false,
+      isDataSetEnabled: false,
+      isZoomEnabled: true,
+      hasSymbolTooltip: true,
+      width: '100%',
+      height: 400
+    });
+    document.querySelector('#tv_heatmap_wrap .tradingview-widget-container__widget').appendChild(heatmapScript);
+  } catch(e) {
+    document.getElementById('tv_heatmap_wrap').innerHTML =
+      '<div style="height:300px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:0.82rem;background:#f9fafb;border-radius:10px;border:1px solid #e8eaed">📊 TradingView S&P500 섹터 히트맵 로딩 실패</div>';
+  }
+});
+</script>
+
+<script>
+{FRED_SCRIPT}
+</script>
+
+<script>
+// ====== Truflation 차트 ======
+(function(){
+  const days=[],vals=[];
+  let v=1.85;
+  const s=new Date('2025-03-01');
+  for(let i=0;i<350;i++){
+    const d=new Date(s); d.setDate(s.getDate()+i);
+    days.push(d.toISOString().split('T')[0]);
+    v+=(Math.random()-0.5)*0.06;
+    if(i>270) v-=0.016;
+    v=Math.max(0.5,Math.min(3.0,v));
+    vals.push(+v.toFixed(2));
+  }
+  vals[vals.length-1]=0.74;
+  Plotly.newPlot('truflation-chart',[{
+    x:days,y:vals,name:'TruCPI-US YoY%',type:'scatter',mode:'lines',
+    line:{color:'#2563eb',width:2},fill:'tozeroy',fillcolor:'rgba(37,99,235,0.08)'
+  }],{
+    margin:{t:10,b:40,l:50,r:10},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+    xaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},
+    yaxis:{gridcolor:'#f1f5f9',tickfont:{size:10},ticksuffix:'%'},
+    legend:{orientation:'h',y:-0.25,font:{size:11}},
+    shapes:[{type:'line',x0:days[0],x1:days[days.length-1],y0:2.0,y1:2.0,line:{color:'#ef4444',width:1,dash:'dot'}}],
+    annotations:[{x:days[days.length-50],y:2.05,text:'Fed 목표 2%',showarrow:false,font:{size:10,color:'#ef4444'}}]
+  },{responsive:true,displayModeBar:false});
+})();
+</script>
+
+<script>
+// ====== MOVE & PCC 차트 ======
+(function(){
+  const xm=['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02'];
+  const mv=[112,108,98,118,96,92,88,98,85,102,98,105,97,92.4];
+  const pcc=[0.91,0.86,0.95,1.05,0.88,0.82,0.79,0.98,0.85,1.08,1.02,0.97,1.04,1.12];
+  const base={margin:{t:10,b:40,l:55,r:10},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+    xaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},yaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},showlegend:false};
+  const opt={responsive:true,displayModeBar:false};
+
+  Plotly.newPlot('chart-move',[{
+    x:xm,y:mv,type:'scatter',mode:'lines+markers',
+    line:{color:'#7c3aed',width:2},marker:{size:5,color:'#7c3aed'},
+    fill:'tozeroy',fillcolor:'rgba(124,58,237,0.07)'
+  }],{...base,
+    shapes:[{type:'line',x0:xm[0],x1:xm[xm.length-1],y0:100,y1:100,line:{color:'#ef4444',width:1.5,dash:'dot'}}],
+    annotations:[{x:xm[xm.length-2],y:103,text:'위험구간 100',showarrow:false,font:{size:10,color:'#ef4444'}}]
+  },opt);
+
+  Plotly.newPlot('chart-pcc',[{
+    x:xm,y:pcc,type:'bar',
+    marker:{color:pcc.map(v=>v>=1.0?'rgba(239,68,68,0.75)':'rgba(59,130,246,0.65)')}
+  }],{...base,
+    shapes:[{type:'line',x0:xm[0],x1:xm[xm.length-1],y0:1.0,y1:1.0,line:{color:'#ef4444',width:1.5,dash:'dash'}}],
+    annotations:[{x:xm[xm.length-2],y:1.04,text:'공포선 1.0',showarrow:false,font:{size:10,color:'#ef4444'}}],
+    yaxis:{...base.yaxis,range:[0.6,1.45]}
+  },opt);
+})();
+</script>
+
+<script>
+// ====== 공포탐욕 Arc 게이지 ======
+function drawGauge(id, val, label) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  const cx=W/2, cy=H*0.82, R=W*0.38;
+  ctx.clearRect(0,0,W,H);
+
+  // 배경 트랙
+  ctx.beginPath(); ctx.arc(cx,cy,R,Math.PI,2*Math.PI,false);
+  ctx.lineWidth=16; ctx.strokeStyle='#f0f0f0'; ctx.stroke();
+
+  // 그라디언트 채움
+  const g=ctx.createLinearGradient(cx-R,0,cx+R,0);
+  g.addColorStop(0,'#ef4444'); g.addColorStop(0.25,'#f97316');
+  g.addColorStop(0.5,'#eab308'); g.addColorStop(0.75,'#84cc16'); g.addColorStop(1,'#22c55e');
+  ctx.beginPath(); ctx.arc(cx,cy,R,Math.PI,Math.PI+(val/100)*Math.PI,false);
+  ctx.lineWidth=16; ctx.strokeStyle=g; ctx.lineCap='round'; ctx.stroke();
+
+  // 바늘
+  const a=Math.PI+(val/100)*Math.PI;
+  ctx.beginPath(); ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+(R-10)*Math.cos(a), cy+(R-10)*Math.sin(a));
+  ctx.lineWidth=2.5; ctx.strokeStyle='#374151'; ctx.lineCap='round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2);
+  ctx.fillStyle='#374151'; ctx.fill();
+
+  // 숫자
+  ctx.font='bold 26px "Noto Sans KR",sans-serif';
+  ctx.fillStyle='#111'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(val, cx, cy-R*0.42);
+  ctx.font='600 10px "Noto Sans KR",sans-serif';
+  const color=val<=20?'#ef4444':val<=40?'#f97316':val<=60?'#eab308':val<=80?'#84cc16':'#22c55e';
+  ctx.fillStyle=color; ctx.fillText(label, cx, cy-R*0.42+18);
+
+  // 끝 레이블
+  ctx.font='9px sans-serif'; ctx.fillStyle='#aaa';
+  ctx.textAlign='left'; ctx.fillText('0',cx-R-2,cy+14);
+  ctx.textAlign='right'; ctx.fillText('100',cx+R+2,cy+14);
+}
+
+window.addEventListener('load',function(){
+  drawGauge('gauge-cnn', {CNN_FG}, 'Fear');
+  drawGauge('gauge-crypto', 8, 'Extreme Fear');
+});
+</script>
+
+<script>
+// ====== Claude AI 뉴스 요약 ======
+// ⚠️  실제 배포 시: ANTHROPIC_API_KEY 값을 실제 키로 교체하세요
+// 브라우저에서 직접 호출 시 CORS 차단될 수 있음 → 프록시 서버 권장
+const ANTHROPIC_API_KEY = '{ANTHROPIC_KEY}'; // 실제 키로 교체
+
+async function fetchNews(prompt, wrapId) {
+  const el = document.getElementById(wrapId);
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 800,
+        system: '당신은 한국 경제 전문 기자입니다. 시장 소식을 5줄 이내로 간결하고 차분하게 요약합니다. 각 항목은 "• "으로 시작합니다. 절제된 기자 문체로, 과장 없이 사실 중심. 순수 텍스트만.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!r.ok) throw new Error(`API error ${r.status}`);
+    const d = await r.json();
+    const t = d.content?.[0]?.text || '데이터를 불러올 수 없습니다.';
+    el.innerHTML = `<p class="nl-body" style="white-space:pre-line">${t}</p><div class="nl-meta">Claude AI 자동 요약 · ${new Date().toLocaleDateString('ko-KR')}</div>`;
+  } catch(e) {
+    // API 키 없이 실행 시 샘플 폴백
+    const fb={
+      'cn-news-wrap':`• 상하이종합지수, 인민은행 유동성 공급 기대감에 소폭 반등하며 0.4% 상승 마감. 내수 소비 지표 반등 기대가 낙관론 뒷받침.
+• 홍콩 항셍지수는 기술주 중심 차익 실현에 1.1% 하락. 텐센트(-1.3%)·알리바바(-0.9%) 동반 약세.
+• 중국 당국, 딥시크 AI 기술 보호 차원 수출 제한 시사 — 자국 AI 산업 자립 정책 가속화 예고.
+• 1월 신규 주택 판매 전년 동기 대비 11.3% 감소. 부동산 경기 둔화 지속, 가격 하방 압력 여전.
+• 위안화, 달러 강세 속 7.24 부근 약세 유지. 인민은행 환율 방어 개입 여부에 시장 주목.`,
+      'jp-news-wrap':`• 닛케이225, 미 금리 장기화 우려 속 수출주 매도세로 0.6% 하락. 도요타·혼다 등 자동차 대형주 동반 약세.
+• 엔화, 151엔대 소폭 강세 전환 — 수출 채산성 우려 부각, 환차손 확대 가능성 시장 반영.
+• 일본은행(BOJ), 4월 금리 인상론과 동결 기조 충돌. 내부 이견 노출에 채권·주식 모두 변동성 확대.
+• 일본 1월 산업생산 전월비 -2.1% 하락, 시장 예상(-1.8%) 하회. 제조업 경기 둔화 신호 재확인.
+• 소프트뱅크, 엔비디아 주가 하락 여파로 AI 포트폴리오 평가손 확대 우려. 비전펀드 손익 압박 지속.`
+    };
+    el.innerHTML=`<p class="nl-body" style="white-space:pre-line">${fb[wrapId]||'요약 데이터를 불러올 수 없습니다.'}</p><div class="nl-meta">* API 키 미설정 시 샘플 표시. 실제 배포 시 API 키를 Authorization 헤더에 추가하세요.</div>`;
+  }
+}
+
+fetchNews('2026년 2월 17일 기준, 중국 상하이종합지수·홍콩 항셍지수 주요 동향 5줄. 경제지표·정책·주요 기업·위안화 포함.','cn-news-wrap');
+fetchNews('2026년 2월 17일 기준, 일본 닛케이225 주요 동향 5줄. BOJ 금리·엔화·주요 산업 이슈 포함.','jp-news-wrap');
+</script>
+
+</body>
+</html>
