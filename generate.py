@@ -16,7 +16,10 @@ TODAY = datetime.datetime.now(KST)
 DAY_MAP = {"Mon":"월","Tue":"화","Wed":"수","Thu":"목","Fri":"금","Sat":"토","Sun":"일"}
 TODAY_STR = TODAY.strftime("%Y년 %m월 %d일") + f" ({DAY_MAP[TODAY.strftime('%a')]})"
 FRED_URL = "https://api.stlouisfed.org/fred/series/observations"
-claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=120.0)
+try:
+    claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=120.0)
+except TypeError:
+    claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 SYMS = {"SP500":"^GSPC","NASDAQ":"^IXIC","DOW":"^DJI","RUSSELL":"^RUT",
         "VIX":"^VIX","GOLD":"GC=F","SILVER":"SI=F","OIL":"CL=F","COPPER":"HG=F",
@@ -27,10 +30,13 @@ def fetch_market():
     data = {k:{"price":0,"change":0} for k in SYMS}
     try:
         raw = yf.download(list(SYMS.values()), period="2d", interval="1d",
-                          group_by="ticker", auto_adjust=True, progress=False, timeout=30)
+                          group_by="ticker", progress=False, timeout=30)
         for name, sym in SYMS.items():
             try:
-                cl = raw[sym]["Close"].dropna() if sym in raw.columns.get_level_values(0) else raw["Close"].dropna()
+                try:
+                    cl = raw[sym]["Close"].dropna()
+                except (KeyError, TypeError):
+                    cl = raw["Close"].dropna()
                 if len(cl)>=2:
                     c,p = float(cl.iloc[-1]), float(cl.iloc[-2])
                     data[name] = {"price":c,"change":(c-p)/p*100}
@@ -110,14 +116,18 @@ def fred_js(cpi, core, un, ff, d10, d2):
 SYS = ("당신은 월가와 글로벌 매크로를 20년간 취재한 한국 경제 전문기자입니다. "
        "절제된 기자 문체, 사실 중심, 인사이트 있는 분석을 씁니다.")
 
+MODELS = ["claude-sonnet-4-5-20250929", "claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"]
+
 def ai_call(prompt, max_tokens=2000):
-    try:
-        msg = claude.messages.create(
-            model="claude-sonnet-4-5-20250929", max_tokens=max_tokens,
-            system=SYS, messages=[{"role":"user","content":prompt}])
-        return msg.content[0].text
-    except Exception as e:
-        print(f"Claude error: {e}"); return ""
+    for model in MODELS:
+        try:
+            msg = claude.messages.create(
+                model=model, max_tokens=max_tokens,
+                system=SYS, messages=[{"role":"user","content":prompt}])
+            return msg.content[0].text
+        except Exception as e:
+            print(f"Claude error ({model}): {e}")
+    return ""
 
 def gen_summary(mkt):
     sp=mkt.get("SP500",{}); nq=mkt.get("NASDAQ",{}); dw=mkt.get("DOW",{})
@@ -303,4 +313,9 @@ def main():
     print(f"DONE {len(html):,}bytes")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"FATAL: {e}")
+        import traceback; traceback.print_exc()
+        sys.exit(1)
