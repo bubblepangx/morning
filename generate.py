@@ -265,8 +265,10 @@ def patch_html(src, mkt, hl, sb, kl, issues, macro, cn, jp, fscript):
     h = re.sub(r'<div id="jp-news-wrap">[\s\S]*?</div>',
                '<div id="jp-news-wrap"><p class="nl-body">' + jp + '</p></div>', h, count=1)
 
-    # FRED 스크립트
+    # FRED 스크립트 (템플릿 원본 or 이전 생성 결과 모두 매칭)
     h = re.sub(r'<script>\s*// ====== FRED 실시간 API[\s\S]+?loadFredData\(\);\s*</script>',
+               '<script>\n' + fscript + '\n</script>', h)
+    h = re.sub(r'<script>\s*const fredCfg=\{[\s\S]+?Plotly\.newPlot\(\'fred3\'[\s\S]+?\);\s*</script>',
                '<script>\n' + fscript + '\n</script>', h)
 
     return h
