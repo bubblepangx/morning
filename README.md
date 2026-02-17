@@ -36,7 +36,7 @@ cd dashboard-auto
 
 | Secret 이름 | 값 |
 |---|---|
-| `ANTHROPIC_API_KEY` | sk-ant-api03-... |
+| `ANTHROPIC_API_KEY` | (Anthropic 콘솔에서 발급한 키) |
 | `FRED_API_KEY` | (FRED에서 발급한 키) |
 
 ### 4. 첫 실행 테스트
