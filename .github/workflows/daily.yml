@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # 10분 초과 시 강제 종료
 
     steps:
       - name: 📥 레포 체크아웃
