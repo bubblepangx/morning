@@ -1,457 +1,539 @@
-"""
-Daily US Market Dashboard — 자동 생성 스크립트
-매일 새벽 GitHub Actions에서 실행
-"""
-
 import os
 import json
-import datetime
 import requests
 import yfinance as yf
-import anthropic
-from zoneinfo import ZoneInfo
-from pathlib import Path
+from datetime import datetime
+import pytz
 
-# ── 설정 ──────────────────────────────────────────────
-ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
-FRED_API_KEY      = os.environ["FRED_API_KEY"]
-KST               = ZoneInfo("Asia/Seoul")
-TODAY             = datetime.datetime.now(KST)
-TODAY_STR         = TODAY.strftime("%Y년 %m월 %d일 (%a)").replace(
-    "Mon","월").replace("Tue","화").replace("Wed","수").replace(
-    "Thu","목").replace("Fri","금").replace("Sat","토").replace("Sun","일")
-TODAY_EN          = TODAY.strftime("%Y-%m-%d")
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+FRED_API_KEY = "b7aade0c896f05f64dea3071c81c8e39"
 
-claude  = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-FRED    = "https://api.stlouisfed.org/fred/series/observations"
-
-# ── 1. 시장 데이터 수집 (yfinance) ────────────────────
-def fetch_market_data():
-    tickers = {
-        "SP500":   "^GSPC",
-        "NASDAQ":  "^IXIC",
-        "DOW":     "^DJI",
-        "RUSSELL": "^RUT",
-        "VIX":     "^VIX",
-        "GOLD":    "GC=F",
-        "SILVER":  "SI=F",
-        "OIL":     "CL=F",
-        "COPPER":  "HG=F",
-        "DXY":     "DX-Y.NYB",
-        "BTC":     "BTC-USD",
-        "ETH":     "ETH-USD",
-        "SOL":     "SOL-USD",
-        "KRW":     "KRW=X",
-        "JPY":     "JPY=X",
-        "CNY":     "CNY=X",
-    }
-    data = {}
-    for name, sym in tickers.items():
+def get_indices():
+    tickers = {"S&P 500":"^GSPC","NASDAQ":"^IXIC","Dow Jones":"^DJI","Russell 2000":"^RUT","VIX":"^VIX"}
+    result = []
+    for name, ticker in tickers.items():
         try:
-            t = yf.Ticker(sym)
-            h = t.history(period="2d")
-            if len(h) >= 2:
-                cur  = h["Close"].iloc[-1]
-                prev = h["Close"].iloc[-2]
-                chg  = (cur - prev) / prev * 100
-                data[name] = {"price": cur, "change": chg}
-            elif len(h) == 1:
-                data[name] = {"price": h["Close"].iloc[-1], "change": 0.0}
-        except Exception as e:
-            print(f"  ⚠️  {name} fetch 실패: {e}")
-            data[name] = {"price": 0, "change": 0}
-    return data
-
-def fmt_price(v, prefix="", decimals=2):
-    if v == 0: return "N/A"
-    return f"{prefix}{v:,.{decimals}f}"
-
-def fmt_change(c):
-    if c > 0:
-        return f'<span style="color:#e53e3e">▲ {c:.2f}%</span>'
-    elif c < 0:
-        return f'<span style="color:#3182ce">▼ {abs(c):.2f}%</span>'
-    return f'<span style="color:#9ca3af">─ {c:.2f}%</span>'
-
-# ── 2. FRED 경제지표 ───────────────────────────────────
-def fetch_fred(series_id, limit=36):
-    try:
-        r = requests.get(FRED, params={
-            "series_id": series_id, "api_key": FRED_API_KEY,
-            "file_type": "json", "sort_order": "desc", "limit": limit
-        }, timeout=15)
-        data = r.json()
-        if "observations" not in data:
-            print(f"  ⚠️  FRED {series_id} 응답 이상: {list(data.keys())}")
-            return {"x": [], "y": []}
-        obs = [o for o in data["observations"] if o["value"] != "."]
-        obs.reverse()
-        return {
-            "x": [o["date"] for o in obs],
-            "y": [float(o["value"]) for o in obs]
-        }
-    except Exception as e:
-        print(f"  ⚠️  FRED {series_id} 실패: {e}")
-        return {"x": [], "y": []}
-
-def fred_yoy(series_id):
-    """YoY% 계산용 — 2년치 가져와서 계산"""
-    try:
-        r = requests.get(FRED, params={
-            "series_id": series_id, "api_key": FRED_API_KEY,
-            "file_type": "json", "observation_start": "2022-01-01",
-            "sort_order": "asc"
-        }, timeout=15)
-        data = r.json()
-        if "observations" not in data:
-            print(f"  ⚠️  FRED YoY {series_id} 응답 이상: {list(data.keys())}")
-            return {"x": [], "y": []}
-        obs = [o for o in data["observations"] if o["value"] != "."]
-        result_x, result_y = [], []
-        val_map = {o["date"]: float(o["value"]) for o in obs}
-        dates = [o["date"] for o in obs if o["date"] >= "2023-01-01"]
-        for d in dates:
-            cur = val_map.get(d)
-            prev_date = f"{int(d[:4])-1}{d[4:]}"
-            prev_candidates = [k for k in val_map if k <= prev_date]
-            if not prev_candidates: continue
-            prev = val_map[max(prev_candidates)]
-            if prev and prev != 0:
-                result_x.append(d)
-                result_y.append(round((cur - prev) / prev * 100, 2))
-        return {"x": result_x, "y": result_y}
-    except Exception as e:
-        print(f"  ⚠️  FRED YoY {series_id} 실패: {e}")
-        return {"x": [], "y": []}
-
-# ── 3. Claude API 콘텐츠 생성 ──────────────────────────
-def claude_generate(system_prompt, user_prompt, max_tokens=2000):
-    msg = claude.messages.create(
-        model="claude-sonnet-4-5-20250929",
-        max_tokens=max_tokens,
-        system=system_prompt,
-        messages=[{"role": "user", "content": user_prompt}]
-    )
-    return msg.content[0].text
-
-JOURNALIST_SYSTEM = """당신은 월가와 글로벌 매크로 시장을 20년간 취재한 한국의 베테랑 경제 전문 기자입니다.
-숫자와 데이터를 인간적인 언어로 풀어내고, 시장의 감정과 구조적 흐름을 동시에 읽어냅니다.
-공포를 조장하지 않되, 현실을 직시하는 맑은 눈으로 씁니다.
-기자 특유의 절제된 문체, 과장 없이 사실 중심, 독자가 '아, 그렇구나' 할 수 있는 인사이트를 담습니다."""
-
-def gen_daily_summary(mkt):
-    """데일리 시황 생성"""
-    sp  = mkt.get("SP500",  {})
-    nq  = mkt.get("NASDAQ", {})
-    dw  = mkt.get("DOW",    {})
-    ru  = mkt.get("RUSSELL",{})
-    vix = mkt.get("VIX",    {})
-    gold= mkt.get("GOLD",   {})
-    oil = mkt.get("OIL",    {})
-    dxy = mkt.get("DXY",    {})
-
-    context = f"""오늘 날짜: {TODAY_STR}
-주요 지수 마감:
-- S&P 500: {fmt_price(sp.get('price',0), decimals=2)} ({sp.get('change',0):+.2f}%)
-- NASDAQ: {fmt_price(nq.get('price',0), decimals=2)} ({nq.get('change',0):+.2f}%)
-- 다우존스: {fmt_price(dw.get('price',0), decimals=2)} ({dw.get('change',0):+.2f}%)
-- 러셀2000: {fmt_price(ru.get('price',0), decimals=2)} ({ru.get('change',0):+.2f}%)
-- VIX: {fmt_price(vix.get('price',0), decimals=2)} ({vix.get('change',0):+.2f}%)
-- 금: ${fmt_price(gold.get('price',0))} ({gold.get('change',0):+.2f}%)
-- WTI: ${fmt_price(oil.get('price',0))} ({oil.get('change',0):+.2f}%)
-- DXY: {fmt_price(dxy.get('price',0), decimals=2)} ({dxy.get('change',0):+.2f}%)"""
-
-    prompt = f"""{context}
-
-위 데이터를 바탕으로 오늘의 미국 시장 마감 시황을 작성해주세요.
-
-형식:
-1. 첫 줄: 헤드라인 (신문 제목처럼, 30자 내외)
-2. 본문: 7~8문단, 각 문단 3~4문장
-   - 지수별 마감 흐름과 주요 등락 원인
-   - 섹터별 차별화 흐름
-   - 채권·금리 움직임
-   - 달러·금·원자재 동향
-   - 다음 주 주목 이벤트
-3. 마지막: "핵심 한 줄" 요약 (50자 내외)
-
-순수 텍스트로만, HTML 태그 없이."""
-
-    result = claude_generate(JOURNALIST_SYSTEM, prompt, max_tokens=2500)
-    lines = result.strip().split("\n")
-    headline = lines[0].strip().lstrip("#").strip()
-    
-    # 핵심 한 줄 분리
-    keyline = ""
-    body_lines = []
-    for line in lines[1:]:
-        if "핵심 한 줄" in line or line.startswith("**핵심"):
-            keyline = line.replace("**핵심 한 줄**", "").replace("핵심 한 줄:", "").strip(" :—-*")
-        else:
-            body_lines.append(line)
-    body = "\n".join(body_lines).strip()
-    return headline, body, keyline
-
-def gen_issues(mkt):
-    """주요 이슈 10개 생성"""
-    prompt = f"""오늘 날짜: {TODAY_STR}
-
-주요 시장 데이터:
-S&P500 {mkt.get('SP500',{}).get('change',0):+.2f}% / NASDAQ {mkt.get('NASDAQ',{}).get('change',0):+.2f}% / VIX {mkt.get('VIX',{}).get('price',0):.2f}
-금 ${mkt.get('GOLD',{}).get('price',0):,.0f} ({mkt.get('GOLD',{}).get('change',0):+.2f}%) / WTI ${mkt.get('OIL',{}).get('price',0):.2f} ({mkt.get('OIL',{}).get('change',0):+.2f}%)
-BTC ${mkt.get('BTC',{}).get('price',0):,.0f} ({mkt.get('BTC',{}).get('change',0):+.2f}%)
-
-오늘의 주요 시장 이슈 10개를 작성해주세요.
-각 줄은 반드시 "• 🔤 카테고리 | 내용" 형식으로.
-카테고리: 연준, 실적, 금리, AI, 미중, 달러, 원유, 정책, 코인, 지정학 중 선택.
-각 항목 1~2문장, 핵심만.
-순수 텍스트, 번호 없이, HTML 태그 없이."""
-
-    return claude_generate(JOURNALIST_SYSTEM, prompt, max_tokens=1000)
-
-def gen_macro_newsletter(mkt):
-    """매크로 뉴스레터 3~4개 토픽"""
-    prompt = f"""오늘 날짜: {TODAY_STR}
-
-주요 지표:
-- S&P500: {mkt.get('SP500',{}).get('change',0):+.2f}% / VIX: {mkt.get('VIX',{}).get('price',0):.2f}
-- 금: ${mkt.get('GOLD',{}).get('price',0):,.0f} / DXY: {mkt.get('DXY',{}).get('price',0):.2f}
-- BTC: ${mkt.get('BTC',{}).get('price',0):,.0f} ({mkt.get('BTC',{}).get('change',0):+.2f}%)
-
-오늘 시장 상황에 맞게 3~4개의 매크로 인사이트 토픽을 작성해주세요.
-
-각 토픽 형식:
-[ ① 토픽 제목 — 부제 ]
-본문 (8~10문장, 600~800자, 2~3단락)
-시사점: 투자 관점에서 구체적 행동 지침 1~2문장
-
-다룰 소재 (오늘 상황에 맞게 3~4개 선택):
-- 연준/파월 의장 금리 정책
-- 재무부/베센트 재정·달러 정책  
-- 트럼프 행정부 관세·무역
-- 공포지수(VIX)·시장 심리
-- AI·빅테크 투자 논리
-- 금·안전자산 수요
-- 채권시장·금리 커브
-- 대중의 경기침체 공포 vs 시장 현실
-- 이번 주 핫이슈
-
-중립적이고 맑은 시각으로, 공포 조장 없이, 인간적인 매크로 인사이트.
-각 토픽은 ===TOPIC=== 으로 구분해주세요."""
-
-    raw = claude_generate(JOURNALIST_SYSTEM, prompt, max_tokens=3500)
-    topics = [t.strip() for t in raw.split("===TOPIC===") if t.strip()]
-    return topics
-
-def gen_regional_brief(region):
-    """중국·홍콩 또는 일본 브리핑"""
-    if region == "cn":
-        prompt = f"{TODAY_STR} 기준, 중국 상하이종합지수·홍콩 항셍지수 주요 동향 5줄. 경제지표·정책·주요 기업·위안화 포함."
-        flag = "🇨🇳 중국 · 홍콩"
-    else:
-        prompt = f"{TODAY_STR} 기준, 일본 닛케이225 주요 동향 5줄. BOJ 금리·엔화·주요 산업 이슈 포함."
-        flag = "🇯🇵 일본"
-
-    system = "한국 경제 전문 기자. 시장 소식 5줄 이내, 각 항목 '• '으로 시작, 절제된 기자 문체, 순수 텍스트만."
-    text = claude_generate(system, prompt, max_tokens=600)
-    return text
-
-# ── 4. HTML 생성 ───────────────────────────────────────
-def build_card(label, price_str, change):
-    color = "#e53e3e" if change >= 0 else "#3182ce"
-    arrow = "▲" if change >= 0 else "▼"
-    return f"""<div class="card">
-  <div class="card-label">{label}</div>
-  <div class="card-value">{price_str}</div>
-  <div class="card-change" style="color:{color}">{arrow} {abs(change):.2f}%</div>
-</div>"""
-
-def build_issue_rows(issues_text):
-    rows = ""
-    for line in issues_text.strip().split("\n"):
-        line = line.strip()
-        if line.startswith("•"):
-            rows += f'<div class="issue-row">{line}</div>\n'
-    return rows
-
-def build_macro_topics(topics):
-    html = ""
-    roman = ["①","②","③","④","⑤"]
-    for i, topic in enumerate(topics[:5]):
-        lines = topic.strip().split("\n")
-        # 첫 줄이 제목
-        title_line = lines[0].strip().lstrip("[").rstrip("]").strip()
-        # 시사점 분리
-        body_parts, simsajeom = [], ""
-        for line in lines[1:]:
-            if line.strip().startswith("시사점"):
-                simsajeom = line.replace("시사점:","").replace("**시사점:**","").strip()
+            t = yf.Ticker(ticker); hist = t.history(period="2d")
+            if len(hist) >= 2:
+                prev = hist["Close"].iloc[-2]; close = hist["Close"].iloc[-1]; chg = (close-prev)/prev*100
+            elif len(hist) == 1:
+                close = hist["Close"].iloc[-1]; chg = 0
             else:
-                body_parts.append(line)
-        body = "\n".join(body_parts).strip()
-        
-        html += f'<div class="nl-topic">[ {title_line} ]</div>\n'
-        html += f'<p class="nl-body" style="white-space:pre-line">{body}'
-        if simsajeom:
-            html += f'\n\n<strong>시사점:</strong> {simsajeom}'
-        html += '</p>\n'
-    return html
+                close, chg = 0, 0
+            result.append({"name":name,"price":close,"change":chg})
+        except:
+            result.append({"name":name,"price":0,"change":0})
+    return result
 
-def build_fred_script(cpi, core_cpi, unrate, fedfunds, dgs10, dgs2):
-    def js_arr(d): return json.dumps(d)
-    return f"""
-const fredCfg={{margin:{{t:10,b:40,l:50,r:10}},legend:{{orientation:'h',y:-0.25,font:{{size:11}}}},paper_bgcolor:'transparent',plot_bgcolor:'transparent',xaxis:{{gridcolor:'#f1f5f9',tickfont:{{size:10}}}},yaxis:{{gridcolor:'#f1f5f9',tickfont:{{size:10}}}}}};
-const fredOpt={{responsive:true,displayModeBar:false}};
-Plotly.newPlot('fred1',[
-  {{x:{js_arr(cpi['x'])},y:{js_arr(cpi['y'])},name:'CPI YoY%',type:'scatter',mode:'lines',line:{{color:'#2563eb',width:2}}}},
-  {{x:{js_arr(core_cpi['x'])},y:{js_arr(core_cpi['y'])},name:'Core CPI YoY%',type:'scatter',mode:'lines',line:{{color:'#dc2626',width:2}}}}
-],{{...fredCfg,yaxis:{{...fredCfg.yaxis,ticksuffix:'%'}},shapes:[{{type:'line',x0:'{cpi['x'][0] if cpi['x'] else ''}',x1:'{cpi['x'][-1] if cpi['x'] else ''}',y0:2,y1:2,line:{{color:'#9ca3af',width:1,dash:'dot'}}}}]}},fredOpt);
-Plotly.newPlot('fred2',[
-  {{x:{js_arr(unrate['x'])},y:{js_arr(unrate['y'])},name:'실업률',type:'scatter',mode:'lines',line:{{color:'#7c3aed',width:2}}}},
-  {{x:{js_arr(fedfunds['x'])},y:{js_arr(fedfunds['y'])},name:'Fed Funds',type:'scatter',mode:'lines',line:{{color:'#d97706',width:2}}}}
-],{{...fredCfg,yaxis:{{...fredCfg.yaxis,ticksuffix:'%'}}}},fredOpt);
-Plotly.newPlot('fred3',[
-  {{x:{js_arr(dgs10['x'])},y:{js_arr(dgs10['y'])},name:'10년물',type:'scatter',mode:'lines',line:{{color:'#2563eb',width:2}}}},
-  {{x:{js_arr(dgs2['x'])},y:{js_arr(dgs2['y'])},name:'2년물',type:'scatter',mode:'lines',line:{{color:'#dc2626',width:2}}}}
-],{{...fredCfg,yaxis:{{...fredCfg.yaxis,ticksuffix:'%'}}}},fredOpt);
-"""
+def get_forex_commodities():
+    items = {"달러인덱스":"DX-Y.NYB","원/달러":"KRW=X","엔/달러":"JPY=X","위안/달러":"CNY=X","금":"GC=F","은":"SI=F","WTI 원유":"CL=F","구리":"HG=F"}
+    result = []
+    for name, ticker in items.items():
+        try:
+            t = yf.Ticker(ticker); hist = t.history(period="2d")
+            if len(hist) >= 2:
+                prev = hist["Close"].iloc[-2]; close = hist["Close"].iloc[-1]; chg = (close-prev)/prev*100
+            elif len(hist) == 1:
+                close = hist["Close"].iloc[-1]; chg = 0
+            else:
+                close, chg = 0, 0
+            result.append({"name":name,"price":close,"change":chg})
+        except:
+            result.append({"name":name,"price":0,"change":0})
+    return result
 
-# ── 5. 메인 HTML 조립 ──────────────────────────────────
-def build_html(mkt, headline, summary_body, keyline,
-               issues_html, macro_html, cn_brief, jp_brief,
-               fred_script):
+def get_fred(series_id, limit=24):
+    url = "https://api.stlouisfed.org/fred/series/observations"
+    params = {"series_id":series_id,"api_key":FRED_API_KEY,"file_type":"json","sort_order":"desc","limit":limit}
+    try:
+        r = requests.get(url, params=params, timeout=10)
+        obs = r.json().get("observations",[])
+        data = [(o["date"],float(o["value"])) for o in obs if o["value"]!="."]
+        data.reverse(); return data
+    except:
+        return []
 
-    def card(label, sym, prefix="", decimals=2):
-        d = mkt.get(sym, {})
-        p = d.get("price", 0)
-        c = d.get("change", 0)
-        ps = f"{prefix}{p:,.{decimals}f}" if p else "N/A"
-        color = "#e53e3e" if c >= 0 else "#3182ce"
-        arrow = "▲" if c >= 0 else "▼"
-        return (f'<div class="card"><div class="card-label">{label}</div>'
-                f'<div class="card-value">{ps}</div>'
-                f'<div class="card-change" style="color:{color}">{arrow} {abs(c):.2f}%</div></div>')
+def get_crypto():
+    try:
+        r = requests.get("https://api.coingecko.com/api/v3/simple/price",
+            params={"ids":"bitcoin,ethereum,solana","vs_currencies":"usd","include_24hr_change":"true"}, timeout=10)
+        d = r.json()
+        return [
+            {"name":"BTC","price":d["bitcoin"]["usd"],"change":d["bitcoin"]["usd_24h_change"]},
+            {"name":"ETH","price":d["ethereum"]["usd"],"change":d["ethereum"]["usd_24h_change"]},
+            {"name":"SOL","price":d["solana"]["usd"],"change":d["solana"]["usd_24h_change"]},
+        ]
+    except:
+        return [{"name":"BTC","price":0,"change":0},{"name":"ETH","price":0,"change":0},{"name":"SOL","price":0,"change":0}]
 
-    # 공포탐욕 — VIX 기반 추정
-    vix_val = mkt.get("VIX", {}).get("price", 25)
-    cnn_fg = max(5, min(95, int(100 - vix_val * 2.5)))
+def get_crypto_fear_greed():
+    try:
+        r = requests.get("https://api.alternative.me/fng/?limit=1", timeout=10)
+        d = r.json()["data"][0]
+        return {"value":int(d["value"]),"label":d["value_classification"]}
+    except:
+        return {"value":50,"label":"Neutral"}
 
-    # HTML 템플릿 읽기
-    with open("templates/dashboard.html", "r") as f:
-        html = f.read()
+def get_cnn_fear_greed():
+    try:
+        r = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+            timeout=10, headers={"User-Agent":"Mozilla/5.0"})
+        d = r.json()["fear_and_greed"]
+        return {"value":int(float(d["score"])),"label":d["rating"]}
+    except:
+        return {"value":50,"label":"Neutral"}
 
-    # ── str.format() 대신 직접 replace() 사용 ──
-    # CSS의 {box-sizing} 등 중괄호와 충돌하지 않음
+def get_ai_content(indices, forex):
+    if not ANTHROPIC_API_KEY:
+        return {"headline":"API 키 설정 후 자동 생성됩니다","summary":"ANTHROPIC_API_KEY를 GitHub Secrets에 등록해주세요.","issues":[],"newsletter":""}
 
-    replacements = {
-        "{TODAY_STR}":   TODAY_STR,
-        "{HEADLINE}":    headline,
-        "{SUMMARY_BODY}": summary_body,
-        "{KEYLINE}":     keyline,
-        "{ISSUES_HTML}": issues_html,
-        "{CARD_SP500}":  card("S&P 500",      "SP500",   decimals=2),
-        "{CARD_NASDAQ}": card("NASDAQ",        "NASDAQ",  decimals=2),
-        "{CARD_DOW}":    card("Dow Jones",     "DOW",     decimals=2),
-        "{CARD_RUSSELL}":card("Russell 2000",  "RUSSELL", decimals=2),
-        "{CARD_VIX}":    card("VIX",           "VIX",     decimals=2),
-        "{CARD_GOLD}":   card("금 (XAU/USD)",  "GOLD",    "$", decimals=0),
-        "{CARD_SILVER}": card("은 (XAG/USD)",  "SILVER",  "$", decimals=2),
-        "{CARD_OIL}":    card("WTI 원유",      "OIL",     "$", decimals=2),
-        "{CARD_COPPER}": card("구리",          "COPPER",  "$", decimals=3),
-        "{CARD_DXY}":    card("달러인덱스",    "DXY",     decimals=2),
-        "{CARD_KRW}":    card("원/달러",       "KRW",     decimals=2),
-        "{CARD_JPY}":    card("엔/달러",       "JPY",     decimals=2),
-        "{CARD_CNY}":    card("위안/달러",     "CNY",     decimals=3),
-        "{CARD_BTC}":    card("Bitcoin",       "BTC",     "$", decimals=0),
-        "{CARD_ETH}":    card("Ethereum",      "ETH",     "$", decimals=0),
-        "{CARD_SOL}":    card("Solana",        "SOL",     "$", decimals=2),
-        "{CNN_FG}":      str(cnn_fg),
-        "{MACRO_HTML}":  macro_html,
-        "{CN_BRIEF}":    cn_brief.replace("\n", "<br>"),
-        "{JP_BRIEF}":    jp_brief.replace("\n", "<br>"),
-        "{FRED_SCRIPT}": fred_script,
-        "{ANTHROPIC_KEY}": ANTHROPIC_API_KEY,
-        "{FRED_KEY}":    FRED_API_KEY,
+    idx_text = "\n".join([f"- {i['name']}: {i['price']:.2f} ({i['change']:+.2f}%)" for i in indices])
+
+    prompt = f"""오늘 날짜: {datetime.now(pytz.timezone('Asia/Seoul')).strftime('%Y년 %m월 %d일')}
+
+현재 시장 데이터:
+{idx_text}
+
+당신은 월스트리트저널 수석 금융 특파원입니다. 오늘 미국 주식시장 마감 뉴스를 웹에서 철저히 검색한 뒤, 아래 3가지 섹션을 작성해주세요.
+
+===SECTION1===
+[데일리 시장 마감 시황]
+
+헤드라인: (따옴표 없이, 핵심을 담은 강렬한 제목 한 줄)
+
+본문: 전날 미국 주식시장 마감 상황을 최소 5~7단락으로 심층 분석해 주세요.
+- 첫 단락: 3대 지수 및 주요 지수 마감 수치와 전반적 시장 분위기
+- 둘째 단락: 당일 가장 큰 시장 이슈(연준 발언, 경제지표, 지정학 등) 심층 분석
+- 셋째 단락: 섹터별 동향 — 어떤 섹터가 강세/약세였는지, 그 이유
+- 넷째 단락: 주요 종목 움직임 (실적 발표, 급등락 종목, 이유)
+- 다섯째 단락: 채권·달러·원자재 등 매크로 자산 동향
+- 여섯째 단락: 투자자 심리 및 다음 날/다음 주 주목할 이벤트
+- 마지막: "핵심 한 줄:" 로 시작하는 오늘 시장을 압축하는 한 문장
+
+문체: 월스트리트저널 스타일. 사실에 근거하되 서사가 있고, 숫자와 맥락을 함께 전달. 한국어로 작성.
+
+===SECTION2===
+[오늘의 주요 이슈]
+
+아래 형식으로 7~15개 작성:
+• 🏦 연준 | 구체적 발언자·수치 포함
+• 📈 실적 서프라이즈 | 종목명 EPS/매출 수치 포함
+• 📉 실적 쇼크 | 종목명 EPS/매출 수치 포함
+• 🚀 급등 종목 | 종목명 등락률·이유
+• 💥 급락 종목 | 종목명 등락률·이유
+• 🤖 AI·테크 | 구체적 사건
+• 🇨🇳 미중 | 무역·정책 이슈
+• 💵 달러·금리 | 수치 포함
+• 🛢️ 원유·원자재 | 수치 포함
+• 🏛️ 정책·규제 | 구체적 내용
+• 🌏 국제 | 주요 해외 이슈
+해당하는 것만 포함. 각 줄은 "• 이모지 카테고리 | 내용" 형식 필수.
+
+===SECTION3===
+[글로벌 매크로 뉴스레터]
+
+오늘 시장에서 가장 중요한 매크로 테마 3~4가지를 골라 각각 애널리스트 리포트 스타일로 작성:
+
+[ 테마 제목 1 ]
+- 사건/배경: 무슨 일이 있었는가
+- 시장 반응: 어떻게 반영되었는가
+- 핵심 수치: 관련 데이터
+- 시사점: 투자자가 주목해야 할 포인트
+(3~4단락 분량)
+
+[ 테마 제목 2 ]
+(동일 형식)
+
+[ 테마 제목 3 ]
+(동일 형식)
+
+한국어로 작성. 전문 애널리스트가 기관 투자자에게 보내는 압축 리포트 문체."""
+
+    try:
+        r = requests.post("https://api.anthropic.com/v1/messages",
+            headers={"x-api-key":ANTHROPIC_API_KEY,"anthropic-version":"2023-06-01","content-type":"application/json"},
+            json={"model":"claude-haiku-4-5-20251001","max_tokens":6000,
+                  "tools":[{"type":"web_search_20250305","name":"web_search"}],
+                  "messages":[{"role":"user","content":prompt}]}, timeout=90)
+        content = r.json()
+        text = "".join(b["text"] for b in content.get("content",[]) if b.get("type")=="text")
+
+        s1=s2=s3=""
+        if "===SECTION1===" in text:
+            rest = text.split("===SECTION1===")[1]
+            if "===SECTION2===" in rest:
+                s1 = rest.split("===SECTION2===")[0].strip()
+                rest2 = rest.split("===SECTION2===")[1]
+                if "===SECTION3===" in rest2:
+                    s2 = rest2.split("===SECTION3===")[0].strip()
+                    s3 = rest2.split("===SECTION3===")[1].strip()
+                else:
+                    s2 = rest2.strip()
+            else:
+                s1 = rest.strip()
+        else:
+            s1 = text
+
+        lines = s1.strip().split("\n")
+        headline = ""
+        body_lines = []
+        for line in lines:
+            if line.strip().startswith("헤드라인:"):
+                headline = line.replace("헤드라인:","").strip()
+            elif line.strip().startswith("본문:"):
+                continue
+            else:
+                body_lines.append(line)
+        if not headline and lines:
+            headline = lines[0].strip()
+            body_lines = lines[1:]
+        body = "\n".join(body_lines).strip()
+
+        issues = [l.strip() for l in s2.split("\n") if l.strip().startswith("•") and "|" in l]
+        return {"headline":headline,"summary":body,"issues":issues,"newsletter":s3}
+    except Exception as e:
+        return {"headline":"데이터 로딩 중 오류 발생","summary":str(e),"issues":[],"newsletter":""}
+
+def get_all_fred():
+    return {
+        "cpi":get_fred("CPIAUCSL"),"core_cpi":get_fred("CPILFESL"),"ppi":get_fred("PPIACO"),
+        "unrate":get_fred("UNRATE"),"fedfunds":get_fred("FEDFUNDS"),
+        "t2y":get_fred("GS2"),"t10y":get_fred("GS10"),"hyspread":get_fred("BAMLH0A0HYM2"),
     }
 
-    for placeholder, value in replacements.items():
-        html = html.replace(placeholder, str(value))
+def build_html(indices, forex, crypto, crypto_fg, cnn_fg, ai, fred):
+    now_kst = datetime.now(pytz.timezone('Asia/Seoul')).strftime('%Y년 %m월 %d일 %H:%M KST')
+    date_kst = datetime.now(pytz.timezone('Asia/Seoul')).strftime('%Y년 %m월 %d일')
 
+    def idx_cards(data):
+        out=""
+        for d in data:
+            col="#e53e3e" if d["change"]>=0 else "#3182ce"
+            arr="▲" if d["change"]>=0 else "▼"
+            out+=f'<div class="card"><div class="card-label">{d["name"]}</div><div class="card-value">{d["price"]:,.2f}</div><div class="card-change" style="color:{col}">{arr} {abs(d["change"]):.2f}%</div></div>'
+        return out
+
+    def forex_cards(data, group):
+        out=""
+        for d in data:
+            col="#e53e3e" if d["change"]>=0 else "#3182ce"
+            arr="▲" if d["change"]>=0 else "▼"
+            price=f'{d["price"]:,.2f}' if group=="forex" else f'${d["price"]:,.2f}'
+            out+=f'<div class="card"><div class="card-label">{d["name"]}</div><div class="card-value">{price}</div><div class="card-change" style="color:{col}">{arr} {abs(d["change"]):.2f}%</div></div>'
+        return out
+
+    def crypto_cards(data):
+        out=""
+        for d in data:
+            col="#e53e3e" if d["change"]>=0 else "#3182ce"
+            arr="▲" if d["change"]>=0 else "▼"
+            out+=f'<div class="card"><div class="card-label">{d["name"]}</div><div class="card-value">${d["price"]:,.0f}</div><div class="card-change" style="color:{col}">{arr} {abs(d["change"]):.2f}%</div></div>'
+        return out
+
+    def fg_gauge(val, label, title):
+        if val<=25: col="#e53e3e"
+        elif val<=45: col="#dd6b20"
+        elif val<=55: col="#d69e2e"
+        elif val<=75: col="#38a169"
+        else: col="#2f855a"
+        return f"""<div class="gauge-box">
+            <div class="gauge-title">{title}</div>
+            <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:{val}%;background:{col}"></div></div>
+            <div class="gauge-info"><span style="color:{col};font-weight:700;font-size:1.5rem">{val}</span><span style="color:#718096;margin-left:10px;font-size:0.9rem">{label}</span></div>
+        </div>"""
+
+    def fred_chart(title, datasets):
+        traces=[]; colors=["#2563eb","#dc2626","#16a34a","#d97706","#7c3aed"]
+        for i,(label,data) in enumerate(datasets):
+            if not data: continue
+            xs=[d[0] for d in data]; ys=[d[1] for d in data]
+            traces.append(f'{{x:{json.dumps(xs)},y:{json.dumps(ys)},name:"{label}",type:"scatter",mode:"lines",line:{{color:"{colors[i%5]}",width:2}}}}')
+        if not traces: return f'<div style="padding:20px;color:#999;text-align:center">{title} 데이터 없음</div>'
+        sid=title.replace(" ","_").replace("(","").replace(")","").replace("%","pct").replace("&","and")
+        return f"""<div class="chart-box"><div class="chart-label">{title}</div>
+            <div id="c_{sid}" style="width:100%;height:260px"></div>
+            <script>Plotly.newPlot("c_{sid}",[{",".join(traces)}],{{margin:{{t:10,b:40,l:50,r:10}},legend:{{orientation:"h",y:-0.25,font:{{size:11}}}},paper_bgcolor:"transparent",plot_bgcolor:"transparent",xaxis:{{gridcolor:"#f1f5f9",tickfont:{{size:10}}}},yaxis:{{gridcolor:"#f1f5f9",tickfont:{{size:10}}}}}},{{responsive:true,displayModeBar:false}});</script></div>"""
+
+    def tv_widget(symbol, height=1000):
+        return f"""<div class="tv-wrap" style="height:{height}px">
+            <div class="tradingview-widget-container" style="height:100%;width:100%">
+                <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                {{"autosize":true,"symbol":"{symbol}","interval":"D","timezone":"America/New_York","theme":"light","style":"1","locale":"kr","enable_publishing":false,"hide_top_toolbar":false,"hide_legend":false,"save_image":false,"studies":["MASimple@tv-basicstudies","Volume@tv-basicstudies"]}}
+                </script>
+            </div>
+        </div>"""
+
+    def tv_heatmap(height=600):
+        return f"""<div class="tv-wrap" style="height:{height}px">
+            <div class="tradingview-widget-container" style="height:100%;width:100%">
+                <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+                {{"exchanges":[],"dataSource":"SPX500","grouping":"sector","blockSize":"market_cap_basic","blockColor":"change","locale":"kr","symbolUrl":"","colorTheme":"light","hasTopBar":true,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"width":"100%","height":"100%"}}
+                </script>
+            </div>
+        </div>"""
+
+    # 지수 차트
+    index_charts=""
+    for sym,label in [("AMEX:SPY","S&P 500 — SPY"),("NASDAQ:QQQ","NASDAQ — QQQ"),("AMEX:DIA","Dow Jones — DIA"),("AMEX:IWM","Russell 2000 — IWM")]:
+        index_charts+=f'<div class="chart-label" style="margin:28px 0 8px">{label}</div>'+tv_widget(sym,1000)
+
+    # ETF 차트 (VIX 포함, VIXY 제거)
+    etf_charts=""
+    for sym,label in [("XLE","XLE — 에너지"),("SOXX","SOXX — 반도체"),("ARKK","ARKK — 혁신"),("RSP","RSP — S&P 동일가중"),("TVC:VIX","VIX — 변동성지수")]:
+        etf_charts+=f'<div class="chart-label" style="margin:28px 0 8px">{label}</div>'+tv_widget(sym,850)
+
+    # 종목 차트
+    stock_charts=""
+    for sym in ["AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSLA","MSTR","COIN"]:
+        stock_charts+=f'<div class="chart-label" style="margin:28px 0 8px">{sym}</div>'+tv_widget(sym,850)
+
+    # 코인 차트
+    crypto_charts=""
+    for sym,label in [("BINANCE:BTCUSDT","Bitcoin — BTC/USDT"),("BINANCE:ETHUSDT","Ethereum — ETH/USDT"),("BINANCE:SOLUSDT","Solana — SOL/USDT")]:
+        crypto_charts+=f'<div class="chart-label" style="margin:28px 0 8px">{label}</div>'+tv_widget(sym,850)
+
+    # DXY 차트
+    dxy_chart = tv_widget("TVC:DXY", 850)
+
+    # 푸엘 멀티플
+    puell = """<div class="chart-label" style="margin:0 0 8px">Bitcoin Puell Multiple</div>
+    <div style="width:100%;height:550px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;margin-bottom:16px">
+        <iframe src="https://charts.bitbo.io/puell-multiple/" style="width:100%;height:100%;border:none" title="Puell Multiple"></iframe>
+    </div>"""
+
+    # FRED
+    fred_html=""
+    fred_html+=fred_chart("물가 지표 YoY %",[("CPI",fred["cpi"]),("Core CPI",fred["core_cpi"]),("PPI",fred["ppi"])])
+    fred_html+=fred_chart("실업률 & Fed 금리 %",[("실업률",fred["unrate"]),("Fed Funds",fred["fedfunds"])])
+    fred_html+=fred_chart("국채 수익률 %",[("2년물",fred["t2y"]),("10년물",fred["t10y"])])
+    fred_html+=fred_chart("하이일드 스프레드 %",[("HY Spread",fred["hyspread"])])
+
+    # 이슈
+    issues_html="".join(f'<div class="issue-row">{i}</div>' for i in ai.get("issues",[]))
+
+    # 뉴스레터
+    newsletter_html=""
+    for para in ai.get("newsletter","").split("\n\n"):
+        para=para.strip()
+        if not para: continue
+        if "\n" in para:
+            fl=para.split("\n")[0]; rest="\n".join(para.split("\n")[1:])
+            if fl.startswith("["):
+                newsletter_html+=f'<div class="nl-topic">{fl}</div><p class="nl-body">{rest.replace(chr(10),"<br>")}</p>'
+            else:
+                newsletter_html+=f'<p class="nl-body">{para.replace(chr(10),"<br>")}</p>'
+        else:
+            newsletter_html+=(f'<div class="nl-topic">{para}</div>' if para.startswith("[") else f'<p class="nl-body">{para}</p>')
+
+    # 시황 본문 — 핵심 한 줄 하이라이트
+    summary_text = ai.get('summary','')
+    if '핵심 한 줄:' in summary_text:
+        parts = summary_text.split('핵심 한 줄:')
+        summary_html = f'<div class="summary-body">{parts[0].strip()}</div><div class="summary-keyline"><strong>핵심 한 줄</strong> {parts[1].strip()}</div>'
+    else:
+        summary_html = f'<div class="summary-body">{summary_text}</div>'
+
+    html = f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Daily US Market Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{{box-sizing:border-box;margin:0;padding:0}}
+  body{{font-family:'Noto Sans KR',sans-serif;background:#f8f9fb;color:#1a1a2e;line-height:1.7}}
+
+  /* ── 헤더 ── */
+  .site-header{{background:#fff;border-bottom:1px solid #e8eaed;padding:32px 24px 24px;text-align:center}}
+  .site-header h1{{font-family:'DM Serif Display',serif;font-size:2rem;font-weight:400;color:#111;letter-spacing:-0.5px}}
+  .site-header .meta{{font-size:0.82rem;color:#9ca3af;margin-top:6px;letter-spacing:0.3px}}
+  .site-header .meta span{{color:#374151;font-weight:600}}
+
+  /* ── 컨테이너 ── */
+  .wrap{{max-width:900px;margin:0 auto;padding:32px 20px}}
+
+  /* ── 섹션 공통 ── */
+  .block{{background:#fff;border-radius:14px;padding:28px 32px;margin-bottom:24px;border:1px solid #e8eaed}}
+  .block-title{{font-size:0.72rem;font-weight:700;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px}}
+  .block-title::after{{content:'';flex:1;height:1px;background:#f0f0f0}}
+
+  /* ── 시황 ── */
+  .article-headline{{font-family:'DM Serif Display',serif;font-size:1.55rem;font-weight:400;color:#111;line-height:1.4;margin-bottom:20px}}
+  .summary-body{{font-size:0.95rem;line-height:2;color:#374151;white-space:pre-wrap}}
+  .summary-keyline{{margin-top:20px;padding:14px 18px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:0.9rem;color:#92400e;line-height:1.6}}
+
+  /* ── 이슈 ── */
+  .issue-row{{font-size:0.88rem;line-height:1.7;color:#374151;padding:10px 0;border-bottom:1px solid #f3f4f6}}
+  .issue-row:last-child{{border-bottom:none}}
+
+  /* ── 지수 카드 ── */
+  .cards{{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}}
+  .card{{background:#f9fafb;border:1px solid #e8eaed;border-radius:10px;padding:14px;text-align:center}}
+  .card-label{{font-size:0.7rem;color:#9ca3af;margin-bottom:5px;font-weight:600;letter-spacing:0.3px}}
+  .card-value{{font-size:1.1rem;font-weight:700;color:#111;margin-bottom:3px;font-variant-numeric:tabular-nums}}
+  .card-change{{font-size:0.8rem;font-weight:600}}
+
+  /* ── 게이지 ── */
+  .gauge-row{{display:grid;grid-template-columns:1fr 1fr;gap:28px}}
+  .gauge-box{{padding:4px 0}}
+  .gauge-title{{font-size:0.78rem;color:#6b7280;margin-bottom:10px;font-weight:600}}
+  .gauge-bar-bg{{background:#f3f4f6;border-radius:99px;height:10px;overflow:hidden}}
+  .gauge-bar-fill{{height:100%;border-radius:99px}}
+  .gauge-info{{margin-top:8px;display:flex;align-items:baseline;gap:8px}}
+
+  /* ── 차트 ── */
+  .chart-label{{font-size:0.78rem;font-weight:700;color:#6b7280;letter-spacing:0.5px;text-transform:uppercase}}
+  .chart-box{{margin-bottom:24px}}
+  .tv-wrap{{width:100%;margin-bottom:8px;border-radius:10px;overflow:hidden;border:1px solid #e8eaed}}
+  .tradingview-widget-container,.tradingview-widget-container__widget{{height:100%!important;width:100%!important}}
+  .subsection-label{{font-size:0.72rem;font-weight:700;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid #f3f4f6}}
+
+  /* ── 뉴스레터 ── */
+  .nl-topic{{font-size:0.95rem;font-weight:700;color:#111;margin:22px 0 8px;padding:10px 14px;background:#f0f4ff;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0}}
+  .nl-body{{font-size:0.9rem;line-height:1.95;color:#374151;margin-bottom:12px}}
+
+  /* ── 반응형 ── */
+  @media(max-width:600px){{
+    .cards{{grid-template-columns:repeat(2,1fr)}}
+    .gauge-row{{grid-template-columns:1fr}}
+    .wrap{{padding:20px 14px}}
+    .block{{padding:20px 18px}}
+    .article-headline{{font-size:1.25rem}}
+    .site-header h1{{font-size:1.5rem}}
+  }}
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <h1>Daily US Market Dashboard</h1>
+  <div class="meta"><span>{date_kst}</span> &nbsp;|&nbsp; 자동 생성 &nbsp;|&nbsp; 업데이트 {now_kst}</div>
+</div>
+
+<div class="wrap">
+
+  <!-- 1. 데일리 시황 -->
+  <div class="block">
+    <div class="block-title">데일리 시장 마감 시황 <span style="color:#3b82f6;font-weight:500;text-transform:none;letter-spacing:0">Claude AI · web search</span></div>
+    <div class="article-headline">{ai.get('headline','')}</div>
+    {summary_html}
+  </div>
+
+  <!-- 2. 주요 이슈 -->
+  <div class="block">
+    <div class="block-title">오늘의 주요 이슈 <span style="color:#3b82f6;font-weight:500;text-transform:none;letter-spacing:0">Claude AI</span></div>
+    {issues_html if issues_html else '<div style="color:#9ca3af;font-size:0.9rem">이슈 수집 중입니다.</div>'}
+  </div>
+
+  <!-- 3. 주요 지수 -->
+  <div class="block">
+    <div class="block-title">주요 지수 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">yfinance</span></div>
+    <div class="cards">{idx_cards(indices)}</div>
+  </div>
+
+  <!-- 4. 지수 차트 -->
+  <div class="block">
+    <div class="block-title">지수 캔들차트 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">TradingView · ETF</span></div>
+    {index_charts}
+  </div>
+
+  <!-- 5. S&P500 히트맵 -->
+  <div class="block">
+    <div class="block-title">S&amp;P 500 섹터 히트맵 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">TradingView</span></div>
+    {tv_heatmap(600)}
+  </div>
+
+  <!-- 6. 공포탐욕지수 -->
+  <div class="block">
+    <div class="block-title">공포 &amp; 탐욕 지수 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">CNN · alternative.me</span></div>
+    <div class="gauge-row">
+      {fg_gauge(cnn_fg['value'], cnn_fg['label'], '📺 CNN 공포탐욕지수 (주식)')}
+      {fg_gauge(crypto_fg['value'], crypto_fg['label'], '₿ 크립토 공포탐욕지수')}
+    </div>
+  </div>
+
+  <!-- 7. 환율·원자재 -->
+  <div class="block">
+    <div class="block-title">환율 &amp; 원자재 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">yfinance</span></div>
+    <div class="subsection-label">환율</div>
+    <div class="cards">{forex_cards(forex[:4],'forex')}</div>
+    <div class="subsection-label" style="margin-top:20px">원자재</div>
+    <div class="cards">{forex_cards(forex[4:],'commodity')}</div>
+  </div>
+
+  <!-- 8. DXY 차트 -->
+  <div class="block">
+    <div class="block-title">달러 인덱스 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">TradingView · TVC:DXY</span></div>
+    <div class="chart-label">US Dollar Index (DXY)</div>
+    {dxy_chart}
+  </div>
+
+  <!-- 9. FRED 경제지표 -->
+  <div class="block">
+    <div class="block-title">경제지표 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">FRED API</span></div>
+    {fred_html}
+  </div>
+
+  <!-- 10. 코인 가격 -->
+  <div class="block">
+    <div class="block-title">코인 가격 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">CoinGecko</span></div>
+    <div class="cards">{crypto_cards(crypto)}</div>
+  </div>
+
+  <!-- 11. 푸엘 멀티플 -->
+  <div class="block">
+    <div class="block-title">비트코인 온체인 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">bitbo.io</span></div>
+    {puell}
+  </div>
+
+  <!-- 12. 코인 캔들차트 -->
+  <div class="block">
+    <div class="block-title">코인 캔들차트 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">TradingView · Binance</span></div>
+    {crypto_charts}
+  </div>
+
+  <!-- 13. 매크로 뉴스레터 -->
+  <div class="block">
+    <div class="block-title">글로벌 매크로 뉴스레터 <span style="color:#3b82f6;font-weight:500;text-transform:none;letter-spacing:0">Claude AI · 애널리스트 리포트</span></div>
+    {newsletter_html if newsletter_html else '<div style="color:#9ca3af;font-size:0.9rem">분석 준비 중입니다.</div>'}
+  </div>
+
+  <!-- 14. ETF·VIX 차트 -->
+  <div class="block">
+    <div class="block-title">주요 ETF &amp; VIX <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">TradingView</span></div>
+    {etf_charts}
+  </div>
+
+  <!-- 15. 빅테크 종목 차트 -->
+  <div class="block">
+    <div class="block-title">빅테크 &amp; 주요 종목 <span style="color:#9ca3af;font-weight:400;text-transform:none;letter-spacing:0">TradingView</span></div>
+    {stock_charts}
+  </div>
+
+</div>
+</body>
+</html>"""
     return html
-
-# ── 6. 실행 ───────────────────────────────────────────
-def main():
-    print(f"🚀 대시보드 생성 시작 — {TODAY_STR}")
-
-    print("  📊 시장 데이터 수집 중...")
-    try:
-        mkt = fetch_market_data()
-    except Exception as e:
-        print(f"  ⚠️  시장 데이터 실패: {e}")
-        mkt = {}
-
-    print("  📈 FRED 경제지표 수집 중...")
-    try:
-        cpi      = fred_yoy("CPIAUCSL")
-        core_cpi = fred_yoy("CPILFESL")
-        unrate   = fetch_fred("UNRATE")
-        fedfunds = fetch_fred("FEDFUNDS")
-        dgs10    = fetch_fred("DGS10")
-        dgs2     = fetch_fred("DGS2")
-        fred_script = build_fred_script(cpi, core_cpi, unrate, fedfunds, dgs10, dgs2)
-        print(f"  ✅ FRED 완료 (CPI:{len(cpi['x'])}개 포인트)")
-    except Exception as e:
-        print(f"  ⚠️  FRED 전체 실패: {e}")
-        fred_script = "// FRED 데이터 없음"
-
-    print("  ✍️  시황 생성 중...")
-    try:
-        headline, summary_body, keyline = gen_daily_summary(mkt)
-    except Exception as e:
-        print(f"  ⚠️  시황 생성 실패: {e}")
-        headline = f"{TODAY_STR} 시장 마감 시황"
-        summary_body = "시황 데이터를 불러오는 중 오류가 발생했습니다."
-        keyline = "데이터 로딩 중"
-
-    print("  📰 이슈 생성 중...")
-    try:
-        issues_text = gen_issues(mkt)
-        issues_html = build_issue_rows(issues_text)
-    except Exception as e:
-        print(f"  ⚠️  이슈 생성 실패: {e}")
-        issues_html = '<div class="issue-row">• 이슈 데이터 로딩 중...</div>'
-
-    print("  🌐 매크로 뉴스레터 생성 중...")
-    try:
-        macro_topics = gen_macro_newsletter(mkt)
-        macro_html   = build_macro_topics(macro_topics)
-    except Exception as e:
-        print(f"  ⚠️  뉴스레터 생성 실패: {e}")
-        macro_html = '<p class="nl-body">뉴스레터 데이터 로딩 중...</p>'
-
-    print("  🇨🇳 중국·홍콩 브리핑...")
-    try:
-        cn_brief = gen_regional_brief("cn")
-    except Exception as e:
-        print(f"  ⚠️  중국 브리핑 실패: {e}")
-        cn_brief = "중국·홍콩 데이터 로딩 중..."
-
-    print("  🇯🇵 일본 브리핑...")
-    try:
-        jp_brief = gen_regional_brief("jp")
-    except Exception as e:
-        print(f"  ⚠️  일본 브리핑 실패: {e}")
-        jp_brief = "일본 데이터 로딩 중..."
-
-    print("  🔨 HTML 조립 중...")
-    html = build_html(mkt, headline, summary_body, keyline,
-                      issues_html, macro_html, cn_brief, jp_brief,
-                      fred_script)
-
-    out_path = Path("docs/index.html")
-    out_path.parent.mkdir(exist_ok=True)
-    out_path.write_text(html, encoding="utf-8")
-    print(f"  ✅ 완료! → docs/index.html ({len(html):,}bytes)")
 
 if __name__ == "__main__":
-    main()
+    print("📡 데이터 수집 중...")
+    indices = get_indices()
+    forex = get_forex_commodities()
+    crypto = get_crypto()
+    crypto_fg = get_crypto_fear_greed()
+    print("📺 CNN 공포탐욕지수 수집 중...")
+    cnn_fg = get_cnn_fear_greed()
+    print("🤖 Claude AI 시황 생성 중...")
+    ai = get_ai_content(indices, forex)
+    print("📊 FRED 경제지표 수집 중...")
+    fred = get_all_fred()
+    print("🖥️ HTML 생성 중...")
+    html = build_html(indices, forex, crypto, crypto_fg, cnn_fg, ai, fred)
+    with open("index.html","w",encoding="utf-8") as f:
+        f.write(html)
+    print("✅ index.html 생성 완료!")
