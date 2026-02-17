@@ -37,12 +37,12 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
           git add docs/index.html
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
             KST_TIME=$(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M KST')
             git commit -m "Daily dashboard update ${KST_TIME}"
-            git pull --rebase origin main
             git push origin main
           fi
