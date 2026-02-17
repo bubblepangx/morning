@@ -16,7 +16,7 @@ TODAY = datetime.datetime.now(KST)
 DAY_MAP = {"Mon":"월","Tue":"화","Wed":"수","Thu":"목","Fri":"금","Sat":"토","Sun":"일"}
 TODAY_STR = TODAY.strftime("%Y년 %m월 %d일") + f" ({DAY_MAP[TODAY.strftime('%a')]})"
 FRED_URL = "https://api.stlouisfed.org/fred/series/observations"
-claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=120.0)
 
 SYMS = {"SP500":"^GSPC","NASDAQ":"^IXIC","DOW":"^DJI","RUSSELL":"^RUT",
         "VIX":"^VIX","GOLD":"GC=F","SILVER":"SI=F","OIL":"CL=F","COPPER":"HG=F",
@@ -114,7 +114,7 @@ def ai_call(prompt, max_tokens=2000):
     try:
         msg = claude.messages.create(
             model="claude-sonnet-4-5-20250929", max_tokens=max_tokens,
-            system=SYS, messages=[{"role":"user","content":prompt}], timeout=60)
+            system=SYS, messages=[{"role":"user","content":prompt}])
         return msg.content[0].text
     except Exception as e:
         print(f"Claude error: {e}"); return ""
