@@ -259,10 +259,6 @@ def patch_html(src, mkt, hl, sb, kl, issues, macro, cn, jp, fscript):
     h = re.sub(r'<script>\s*// ====== FRED 실시간 API[\s\S]+?loadFredData\(\);\s*</script>',
                '<script>\n' + fscript + '\n</script>', h)
 
-    # API 키 주입
-    h = h.replace("'YOUR_API_KEY_HERE'", "'" + ANTHROPIC_API_KEY + "'")
-    h = h.replace("'abcdefghijklmnopqrstuvwxyz123456'", "'" + FRED_API_KEY + "'")
-
     return h
 
 def main():
