@@ -1,11 +1,8 @@
 name: 🗞 Market Sentinel — Daily Briefing
 
 on:
-  # KST 06:50 = UTC 21:50 (전날 밤) 평일(월~금) 자동 실행
   schedule:
     - cron: '50 21 * * 1-5'
-
-  # GitHub Actions 탭 → Run workflow 버튼으로 수동 실행 가능
   workflow_dispatch:
     inputs:
       note:
@@ -18,73 +15,39 @@ jobs:
     name: Generate & Publish Briefing
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
-    # output/ 폴더 커밋·푸시 권한
     permissions:
       contents: write
 
     steps:
-      # ① 코드 체크아웃 (최신 커밋 기준)
       - name: ⬇️ Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0          # 전체 히스토리 (meta.json 아카이브용)
+          fetch-depth: 0
 
-      # ② Python 설치
       - name: 🐍 Setup Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
-      # ③ 의존성 설치
       - name: 📦 Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install anthropic markdown
 
-      # ④ 브리핑 생성
       - name: 🤖 Generate briefing
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python generate.py
 
-      # ⑤ output/ + docs/ 변경사항 커밋 & 푸시
-      - name: 💾 Commit & push output
+      - name: 💾 Commit & push docs
         run: |
           git config user.name  "Market Sentinel Bot"
           git config user.email "actions@github.com"
-          git add output/ docs/
-          # 변경 없으면 커밋 스킵
+          git pull origin main --rebase
+          git add docs/
           if git diff --staged --quiet; then
-            echo "변경사항 없음 — 커밋 스킵"
+            echo "변경사항 없음 — 스킵"
           else
             DATE_KST=$(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M KST')
-            git commit -m "📊 브리핑 발행 — ${DATE_KST}"
+            git commit -m "📊 브리핑 발행 — ${DATE_KST} [skip ci]"
             git push
           fi
-
-      # ⑥ GitHub Pages 배포
-      - name: 🚀 Deploy to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: output/
-
-  # GitHub Pages 배포 Job
-  deploy-pages:
-    name: Deploy to GitHub Pages
-    needs: briefing
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: 🌐 Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
