@@ -54,19 +54,20 @@
   .new-badge{display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px;letter-spacing:0.5px;vertical-align:middle}
 
   /* 브리핑 마크다운 스타일 */
-  #briefing-content h1{font-size:1.3rem;font-weight:700;color:#111;margin:1.5rem 0 .6rem;padding-bottom:.4rem;border-bottom:1px solid #e8eaed}
-  #briefing-content h2{font-size:1.1rem;font-weight:700;color:#1d4ed8;margin:1.4rem 0 .5rem}
+  #briefing-content{font-size:0.92rem;line-height:1.95;color:#374151}
+  #briefing-content h1{font-size:1.25rem;font-weight:700;color:#111;margin:1.6rem 0 .6rem;padding-bottom:.4rem;border-bottom:2px solid #e8eaed}
+  #briefing-content h2{font-size:1.05rem;font-weight:700;color:#1d4ed8;margin:1.3rem 0 .5rem}
   #briefing-content h3{font-size:0.95rem;font-weight:600;color:#374151;margin:1rem 0 .4rem}
-  #briefing-content p{margin-bottom:.7rem;font-size:0.92rem;line-height:1.9;color:#374151}
+  #briefing-content p{margin-bottom:.7rem}
   #briefing-content strong{color:#111}
-  #briefing-content ul,#briefing-content ol{padding-left:1.3rem;margin-bottom:.7rem}
-  #briefing-content li{margin-bottom:.3rem;font-size:0.9rem;color:#374151}
-  #briefing-content hr{border:none;border-top:1px solid #e8eaed;margin:1.4rem 0}
-  #briefing-content table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:0.85rem}
-  #briefing-content th{background:#f0f4ff;color:#1d4ed8;padding:.5rem .7rem;text-align:left;border-bottom:2px solid #dbeafe;font-weight:600;white-space:nowrap}
-  #briefing-content td{padding:.45rem .7rem;border-bottom:1px solid #f3f4f6;color:#374151}
-  #briefing-content tr:hover td{background:#f8fafc}
   #briefing-content em{color:#6b7280}
+  #briefing-content ul,#briefing-content ol{padding-left:1.3rem;margin-bottom:.7rem}
+  #briefing-content li{margin-bottom:.3rem;font-size:0.88rem}
+  #briefing-content hr{border:none;border-top:1px solid #e8eaed;margin:1.4rem 0}
+  #briefing-content table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:0.84rem}
+  #briefing-content th{background:#f0f4ff;color:#1d4ed8;padding:.5rem .7rem;text-align:left;border-bottom:2px solid #dbeafe;font-weight:600;white-space:nowrap}
+  #briefing-content td{padding:.45rem .7rem;border-bottom:1px solid #f3f4f6}
+  #briefing-content tr:hover td{background:#f8fafc}
 
   /* 공포탐욕 게이지 */
   .fg-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -105,9 +106,9 @@
 
 <div class="wrap">
 
-<!-- 브리핑 섹션 (Claude 웹검색) -->
+<!-- 브리핑 섹션 (Claude API + web_search) -->
 <div class="block" id="briefing-block">
-  <div class="block-title">Market Sentinel 모닝 브리핑</div>
+  <div class="block-title">Market Sentinel 모닝 브리핑 <span class="src">Claude AI · web search</span></div>
   <div id="briefing-content">브리핑 로딩 중...</div>
 </div>
 
