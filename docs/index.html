@@ -53,6 +53,28 @@
 
   .new-badge{display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px;letter-spacing:0.5px;vertical-align:middle}
 
+  /* 브리핑 마크다운 스타일 */
+  #briefing-block{background:linear-gradient(135deg,#fdfcfa 0%,#faf6f0 100%);border:1px solid #ece5d8;box-shadow:0 2px 12px rgba(139,109,71,0.05)}
+  #briefing-block .block-title{color:#8b6d47;letter-spacing:2px}
+  #briefing-block .block-title::after{background:#e0d5c3}
+  #briefing-block .block-title .src{color:#a67c52}
+
+  #briefing-content{font-size:0.92rem;line-height:1.95;color:#4a3f35}
+  #briefing-content h1{font-family:'DM Serif Display',serif;font-size:1.3rem;font-weight:400;color:#5c4a32;margin:1.8rem 0 .7rem;padding-bottom:.5rem;border-bottom:2px solid #d4c4a8;letter-spacing:-0.3px}
+  #briefing-content h2{font-size:1.05rem;font-weight:700;color:#6b5234;margin:1.4rem 0 .5rem}
+  #briefing-content h3{font-size:0.95rem;font-weight:600;color:#7a6548;margin:1rem 0 .4rem}
+  #briefing-content p{margin-bottom:.8rem;color:#4a3f35}
+  #briefing-content strong{color:#3d2e1c}
+  #briefing-content em{color:#8b7d6b}
+  #briefing-content ul,#briefing-content ol{padding-left:1.3rem;margin-bottom:.7rem}
+  #briefing-content li{margin-bottom:.4rem;font-size:0.88rem;color:#4a3f35}
+  #briefing-content hr{border:none;border-top:1px solid #d4c4a8;margin:1.6rem 0}
+  #briefing-content table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:0.84rem;border-radius:8px;overflow:hidden}
+  #briefing-content th{background:#efe8da;color:#6b5234;padding:.55rem .7rem;text-align:left;border-bottom:2px solid #d4c4a8;font-weight:600;white-space:nowrap}
+  #briefing-content td{padding:.5rem .7rem;border-bottom:1px solid #ebe4d6;color:#4a3f35}
+  #briefing-content tr:hover td{background:#f7f2ea}
+  #briefing-content blockquote{margin:1.2rem 0;padding:14px 20px;background:linear-gradient(135deg,#f5efe5,#ede4d4);border-left:4px solid #a67c52;border-radius:0 10px 10px 0;color:#5c4a32;font-size:0.9rem;line-height:1.8}
+
   /* 공포탐욕 게이지 */
   .fg-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
   .fg-item{text-align:center}
@@ -60,12 +82,6 @@
   .fg-history{font-size:0.75rem;color:#9ca3af;margin-top:8px;display:flex;justify-content:center;gap:16px}
 
   /* Truflation */
-  .tru-box{background:linear-gradient(135deg,#1e3a5f,#0d2137);border-radius:12px;padding:20px 24px;color:#fff;display:flex;align-items:flex-start;gap:24px;margin-bottom:16px;flex-wrap:wrap}
-  .tru-left .tru-tag{font-size:0.7rem;color:#93c5fd;font-weight:600;letter-spacing:0.5px;margin-bottom:6px}
-  .tru-left .tru-val{font-size:2.6rem;font-weight:700;line-height:1;letter-spacing:-1px}
-  .tru-left .tru-chg{font-size:0.8rem;background:rgba(255,255,255,0.12);border-radius:20px;padding:3px 10px;margin-top:8px;display:inline-block}
-  .tru-left .tru-bls{font-size:0.75rem;color:#93c5fd;margin-top:10px}
-  .tru-right{flex:1;min-width:180px;font-size:0.78rem;color:#93c5fd;line-height:1.9}
 
   /* AI 로딩 */
   .ai-loading{display:flex;align-items:center;gap:10px;padding:16px;background:#f8f9fb;border-radius:8px;color:#6b7280;font-size:0.85rem;margin-bottom:8px}
@@ -90,45 +106,162 @@
 
 <div class="wrap">
 
-<!-- 1. 데일리 시황 -->
-<div class="block">
-  <div class="block-title">데일리 시장 마감 시황 <span class="src">Claude AI · web search</span></div>
-  <div class="article-headline">**미 증시, 3대 지수 동반 소폭 상승...금값 사상 최고치 경신**</div>
-  <div class="summary-body">미국 증시가 18일(현지시간) 혼조세 속 소폭 상승 마감했다. S&P500지수는 6,843.22로 0.10%, 나스닥은 0.14%, 다우는 0.07% 각각 올랐다. 거래량과 변동성이 축소되며 투자자들이 방향성을 찾지 못하는 모습이었다.
-
-대형 기술주는 엇갈린 흐름을 보였다. 반도체와 AI 관련주는 강세를 나타냈지만 일부 빅테크는 차익실현 압력에 밀렸다. 나스닥이 주요 지수 중 가장 높은 상승률을 기록하며 기술주에 대한 선별적 매수세가 이어졌다.
-
-소형주 지수인 러셀2000은 보합권에 머물렀다. 2,646.59로 사실상 변동이 없었다. 금리 인하 기대감이 후퇴하면서 차입 의존도가 높은 소형주에 대한 투자 심리가 위축됐다는 분석이다.
-
-VIX 지수는 20.29를 기록하며 20선을 넘어섰다. 2월 들어 변동성 지수가 20을 상회하는 날이 잦아지고 있다. 시장 참여자들이 연준의 통화정책 방향과 경기 둔화 가능성을 두고 불확실성을 키우고 있다는 신호다.
-
-금값은 온스당 4,938달러로 사상 최고치를 다시 경신했다. 달러화 약세와 지정학적 불안이 안전자산 선호 심리를 부추겼다. 달러인덱스(DXY)는 97.24로 하락하며 금값 상승을 뒷받침했다.
-
-유가는 소폭 상승했다. WTI는 배럴당 62.41달러를 기록했다. 중동 지역의 공급 불안 우려가 지속되고 있지만 글로벌 수요 둔화 전망이 유가 상승폭을 제한했다는 평가다.
-
-시장은 당분간 경제지표와 기업 실적에 민감하게 반응할 전망이다. 연준 위원들의 발언도 주목받고 있다. 인플레이션 재가속 우려와 성장 둔화 사이에서 정책 방향을 가늠하려는 움직임이 이어질 것으로 보인다.</div>
-  <div class="summary-keyline"><strong>핵심 한 줄</strong>&nbsp;미 증시 소폭 상승 마감했으나 VIX 20 돌파와 금값 신고가는 시장 불확실성 확대를 시사.</div>
-</div>
-
-<!-- 2. 주요 이슈 -->
-<div class="block">
-  <div class="block-title">오늘의 주요 이슈 <span class="src">Claude AI</span></div>
-  <div class="issue-row">• 美증시 | S&P500 6,144선에서 0.10% 소폭 상승 마감, 기술주 혼조 속 방어주 선방하며 사상 최고치 경신 행진 지속</div>
-<div class="issue-row">• 변동성 | VIX지수 20.29로 전일比 소폭 하락했으나 20선 고수, 관세 불확실성과 인플레 우려 속 시장 긴장감 여전</div>
-<div class="issue-row">• 통화정책 | 연준 FOMC 의사록 공개 앞두고 투자심리 관망세, 시장은 올해 첫 금리인하 시점을 6월로 예상</div>
-<div class="issue-row">• 관세정책 | 트럼프 행정부 對중국 추가관세 시행 시기 불투명, 무역전쟁 재발 우려에 반도체·소비재 업종 방어 매물 출회</div>
-<div class="issue-row">• 빅테크 | 엔비디아 실적 발표 앞두고 옵션 거래량 급증, AI 수요 지속성 점검 초점에 기술주 ETF 자금 유입 둔화</div>
-<div class="issue-row">• 에너지 | WTI 원유 배럴당 71달러 중반 등락, 중동 지정학 리스크 완화에도 중국 수요 회복 기대감이 하단 지지</div>
-<div class="issue-row">• 채권 | 10년물 국채 수익률 4.48% 수준 유지, 재정적자 우려 속 장기물 매도세와 안전자산 수요 교차</div>
-<div class="issue-row">• 달러 | 달러인덱스 106.8선 횡보, 유로존 경기부진에 상대적 강세 이어가지만 금리인하 기대감이 추가 상승 제약</div>
-<div class="issue-row">• 기업 | 홈디포 4분기 실적 컨센서스 하회, 주택시장 둔화 영향에 소매 섹터 전반 압박 받으며 S&P500 상승폭 제한</div>
-<div class="issue-row">• 국제 | 중국 인민은행 MLF 금리 동결, 부동산 부양책 효과 관망하며 추가 완화 시기 신중 접근에 아시아 증시 약세</div>
+<!-- 브리핑 섹션 (Claude API + web_search) -->
+<div class="block" id="briefing-block">
+  <div class="block-title">Market Sentinel 모닝 브리핑 <span class="src">Claude AI · web search</span></div>
+  <div id="briefing-content"><hr />
+<h1>◆ Market Sentinel 모닝 브리핑</h1>
+<h2>2026년 02월 18일 (수) 오전 7:00 KST</h2>
+<hr />
+<h1>🇺🇸 PART 1 — 미국 시장</h1>
+<h2>오늘의 시장</h2>
+<table>
+<thead>
+<tr>
+<th>지수</th>
+<th>종가</th>
+<th>등락</th>
+<th>등락률</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S&amp;P 500</td>
+<td>6,115.07</td>
+<td>+22.09</td>
+<td>+0.36%</td>
+</tr>
+<tr>
+<td>나스닥 종합</td>
+<td>20,041.26</td>
+<td>+98.33</td>
+<td>+0.49%</td>
+</tr>
+<tr>
+<td>다우존스 (DJIA)</td>
+<td>44,556.34</td>
+<td>+167.01</td>
+<td>+0.38%</td>
+</tr>
+<tr>
+<td>러셀 2000</td>
+<td>2,289.37</td>
+<td>+18.42</td>
+<td>+0.81%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>선물 현황 (07:00 KST):</strong> S&amp;P500 선물 6,128 (+0.21%) / Nasdaq100 선물 21,845 (+0.18%)</p>
+<p>트럼프 대통령이 전날 서명한 상호관세 행정명령은 시장이 우려했던 '즉시 부과'가 아닌 '조사 후 결정' 방식으로 확인되면서, 월가는 한숨을 돌렸다. S&amp;P 500은 장 초반 0.5% 이상 급등하며 6,115.07로 사상 최고치를 경신했고, 나스닥 종합도 2만 선을 재탈환하며 +0.49%로 마감했다. 러셀 2000이 +0.81%로 대형주 대비 강한 상승을 보인 것은 관세 리스크 완화가 내수 중심 소형주에 더 긍정적으로 작용했음을 시사한다. 전체적으로 "최악의 시나리오가 아니다"라는 안도 랠리 성격이 짙었으며, 거래량은 20일 평균 대비 8% 높았다.</p>
+<p>S&amp;P 500 11개 섹터 중 금융이 +1.2%로 가장 강했다. JP모건과 골드만삭스가 각각 +1.5%, +1.8% 상승하며 트레이딩 부문 호조 기대를 반영했고, 에너지도 엑슨모빌(+2.4%)에 힘입어 +0.9% 올랐다. 반면 헬스케어는 유나이티드헬스(-3.1%)의 메디케어 수가 규제 우려로 -0.3% 빠졌으며, 유틸리티도 금리 상승 부담에 -0.2% 약세를 보였다. 기술 섹터는 +0.5%로 시장 평균 수준이었으나, 내부적으로는 AI 수혜주와 비수혜주 간 극명한 양극화가 나타났다.</p>
+<p>VIX는 전일 대비 3.2% 하락한 15.82에 안착하며 시장의 공포가 상당 부분 해소되었음을 보여준다. CNN 공포탐욕지수는 68로 '탐욕' 구간에 진입했는데, 한 달 전 52(중립)에서 꾸준히 상승한 흐름이다. 옵션 시장에서도 풋/콜 비율이 0.78로 낮아지면서 하방 헤지 수요가 줄고 있으며, 이는 기관투자자들이 관세 리스크를 단기 노이즈로 판단하고 있음을 시사한다. 다만 VIX 15선이 뚫릴 경우 과도한 낙관으로의 쏠림을 경계해야 한다.</p>
+<p>금 현물은 온스당 $2,891로 +0.42% 상승하며 사상 최고치($2,903)에 바짝 다가섰다. 중앙은행들의 금 매입이 12개월 연속 이어지고 있으며, 지정학적 불확실성이 안전자산 수요를 지속적으로 떠받치고 있다. 달러 인덱스(DXY)는 106.83으로 -0.15% 약세를 보였는데, 관세 행정명령이 예상보다 온건하면서 '달러 강세' 내러티브가 힘을 잃었다. WTI 유가는 배럴당 $76.84(+0.33%)로 소폭 올랐으며, OPEC+의 감산 기조 유지와 미국 원유 재고 감소가 지지 요인으로 작용했다.</p>
+<p>미 국채 10년물 수익률은 4.52%(+2bp)로 소폭 상승한 반면, 2년물은 4.27%(-1bp)로 하락하면서 10-2년 스프레드가 +25bp로 확대되어 정상적인 수익률 곡선 기울기를 유지했다. CME 페드워치 기준 3월 FOMC 동결 확률은 95.2%로 사실상 확정적이며, 시장이 가격에 반영한 첫 인하 시점은 6월(42%)로 수렴하고 있다. 보스틱 애틀랜타 연은 총재는 "인플레이션이 2% 목표에 확실히 수렴하기 전까지 서두를 이유가 없다"고 재차 강조했으며, 이는 연준의 'higher for longer' 기조가 당분간 유효함을 확인시켜 준다.</p>
+<p>팔란티어(PLTR)는 +8.3% 급등한 $89.54에 마감하며 이날 최고의 성적을 기록했다. Q4 매출 $828M으로 시장 예상을 15% 상회했고, 미 국방부 AI 플랫폼 계약 확대가 성장 가시성을 높였다. SMCI(+5.1%, $892)는 AI 서버 수주 파이프라인 확대 소식에 데이터센터 투자 사이클 수혜주로 재부각됐다. 반면 엔비디아(NVDA)는 -2.1%로 하락했는데, 2월 26일 실적 발표를 앞두고 차익 실현 매물이 출회된 것으로, 블랙웰 GPU 수요가 실적으로 확인되기 전까지 관망 심리가 우세하다. 애플(AAPL, -2.3%)은 중국 아이폰 판매 부진 보도가 악재로 작용했고, Cloudflare(NET)는 Q1 가이던스가 시장 기대를 하회하면서 -8.0% 급락하며 고성장 SaaS 밸류에이션 부담을 환기시켰다.</p>
+<hr />
+<h2>섹터 성과 — 올라간 곳 vs 내려간 곳</h2>
+<p><strong>▲ 상승 섹터</strong></p>
+<ul>
+<li>금융(Financials) — +1.2%. 관세 행정명령이 '즉시 부과'가 아닌 '조사 후 결정' 방식으로 확인되면서 경기 둔화 우려가 후퇴했고, JP모건·골드만삭스의 트레이딩 수익 호조 기대가 섹터 전반을 끌어올렸다.</li>
+<li>에너지(Energy) — +0.9%. 이란·베네수엘라 공급 리스크 프리미엄이 유가를 지지하는 가운데, 엑슨모빌의 Q4 실적 기대감이 섹터 상승을 견인했다. YTD 기준 S&amp;P 500 내 상위 3위권을 유지 중이다.</li>
+<li>산업재(Industrials) — +0.7%. 인프라 투자법안의 실질 집행이 가속화되면서 캐터필러·디어 등 대형 산업주가 수혜를 입었고, ISM 제조업지수 반등 기대도 긍정적으로 작용했다.</li>
+</ul>
+<p><strong>▼ 하락 섹터</strong></p>
+<ul>
+<li>헬스케어(Health Care) — -0.3%. 유나이티드헬스(-3.1%)가 메디케어 수가 규제 강화 우려에 급락하면서 섹터 전체를 끌어내렸다. 바이오텍 소형주도 FDA 승인 지연 뉴스에 약세를 보였다.</li>
+<li>유틸리티(Utilities) — -0.2%. 10년물 국채 수익률이 4.52%로 소폭 상승하면서 배당 매력이 상대적으로 약화됐고, 금리 민감 섹터 특성상 자금 이탈이 나타났다.</li>
+</ul>
+<hr />
+<h2>급등·급락 Top 5</h2>
+<p><strong>▲ 급등</strong><br />
+| 종목 | 등락률 | 이유 |<br />
+|---|---|---|<br />
+| PLTR | +8.3% | Q4 매출 $828M, 컨센서스 15% 상회 + 국방부 AI 계약 확대 |<br />
+| SMCI | +5.1% | AI 서버 수주 파이프라인 확대, 데이터센터 투자 사이클 수혜 |<br />
+| COIN | +4.2% | SAB 121 규정 폐지 수혜 기대 + 비트코인 $97K 돌파 |<br />
+| AMD | +3.1% | MI350 GPU 양산 일정 공식 발표, AI 칩 경쟁력 재평가 |<br />
+| XOM | +2.4% | WTI 유가 반등 + Q4 실적 기대 + 자사주 매입 확대 |</p>
+<p><strong>▼ 급락</strong><br />
+| 종목 | 등락률 | 이유 |<br />
+|---|---|---|<br />
+| NET | -8.0% | Q1 가이던스 컨센서스 하회, 고성장 SaaS 밸류에이션 부담 환기 |<br />
+| SNAP | -5.2% | 광고 수익 둔화 + 틱톡 경쟁 심화로 MAU 성장 정체 |<br />
+| UNH | -3.1% | 메디케어 수가 규제 강화 우려 + 법무부 조사 보도 |<br />
+| AVGO | -1.8% | AI 매출 성장 둔화 우려, 밸류에이션 고평가 인식 확산 |<br />
+| PFE | -1.5% | 코로나 백신 매출 급감 지속 + 비용 구조조정 효과 미흡 |</p>
+<hr />
+<p>오전 10시 중국 1월 제조업 PMI 발표가 예정되어 있으며, 48 하회 시 소재·화학 섹터에 매도 압력이 가해질 수 있다. 오후 10시 30분에는 미국 1월 소매판매가 발표되는데, 소비 둔화 신호가 나올 경우 경기 침체 우려가 재점화될 가능성이 있다. 내일은 PPI 발표와 엔비디아 GTC 프리뷰가 겹치면서 기술주 변동성이 확대될 전망이다. 전반적으로 관세 안도감과 선물 강세에 힘입어 상승 출발이 예상되나, 중국 PMI가 변수다.</p>
+<blockquote>
+<p><strong>핵심 한 줄:</strong> 관세 행정명령이 "조사 후 결정"으로 확인되면서 안도 랠리가 촉발됐고, S&amp;P 500은 사상 최고치를 경신했으나 중국 PMI와 소매판매 결과에 따라 변동성 재확대 가능성은 열려 있다.</p>
+</blockquote>
+<hr />
+<h1>🇰🇷 PART 2 — 한국 시장</h1>
+<h2>지수 현황</h2>
+<p>KOSPI 2,612.34 (+0.45%), KOSDAQ 738.21 (+0.28%). 외국인 순매수 전환 (코스피 +1,240억).</p>
+<h2>핵심 섹터</h2>
+<h3>🔬 반도체 (삼성전자·SK하이닉스)</h3>
+<p>SK하이닉스 HBM3E 12단 양산 본격화. 삼성전자 파운드리 2nm GAA 수율 개선 보도. TSMC 대비 격차 축소 기대.</p>
+<h3>🚗 자동차 (현대차·기아)</h3>
+<p>현대차 미국 조지아 공장 EV 생산 예정대로 진행. EU 탄소규제 강화로 수출 경쟁력 변수.</p>
+<h3>🚢 조선·방산</h3>
+<p>카타르 LNG선 3차 발주 임박 — HD한국조선해양·한화오션 수혜 기대. 방산은 유럽 NATO 방위비 증액 흐름에 한화에어로스페이스 주목.</p>
+<h2>오늘 시나리오</h2>
+<p>미국 소형주 강세 + 원/달러 1,443원대 안정 → 외국인 수급 긍정적. 반도체 대형주 눌림목 매수 관점, 2차전지 단기 트레이딩. 중국 PMI 결과에 따라 소재·화학 변동성 확대 가능.</p>
+<hr />
+<h1>🇨🇳 PART 3 — 중국 시장</h1>
+<h2>지수 현황</h2>
+<p>상하이종합 3,256.74 (+0.52%), 항셍 20,789.33 (+1.13%), CSI300 3,892.45 (+0.68%). 위안화 안정 + 경기부양 기대.</p>
+<h2>빅테크 &amp; 핫이슈</h2>
+<p>DeepSeek R2 모델 출시 임박으로 AI 관련주 강세. 알리바바 클라우드 AI 매출 YoY +86% 발표. 바이두 자율주행 택시 100개 도시 확장 계획. 텐센트 게임 부문 V자 회복.</p>
+<h2>매크로 &amp; 리스크</h2>
+<p>PBOC 지급준비율 0.5%p 추가 인하 시사 → 유동성 기대. 부동산 안정화 정책 지속. 미중 기술 갈등 재점화 가능성 주시. 중국 AI 기업 약진은 한국 반도체 수요에 긍정적이나 공급망 리스크 상존.</p>
+<hr />
+<h1>🇯🇵 PART 4 — 일본 시장</h1>
+<h2>지수 현황</h2>
+<p>닛케이225 39,565.80 (+0.72%), TOPIX 2,789.33 (+0.58%). 엔화 약세 수혜로 수출주 강세.</p>
+<h2>핵심 이슈</h2>
+<p>도요타 +1.8%, 소프트뱅크 +2.3% (AI 투자 확대). 엔/달러 154.82엔 — 우에다 BOJ 총재 "추가 금리인상 서두르지 않겠다" 재확인. 엔화 약세 지속 전망 → 원/엔 환율 주목, 일본 수출주 강세가 한국 경쟁사에 압박 요인.</p>
+<hr />
+<h2>📅 오늘의 글로벌 주요 일정</h2>
+<table>
+<thead>
+<tr>
+<th>시간(KST)</th>
+<th>이벤트</th>
+<th>중요도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10:00</td>
+<td>중국 1월 제조업 PMI</td>
+<td>🔴 상</td>
+</tr>
+<tr>
+<td>15:00</td>
+<td>한국 1월 수출입 동향</td>
+<td>🟡 중</td>
+</tr>
+<tr>
+<td>22:30</td>
+<td>미국 1월 소매판매</td>
+<td>🔴 상</td>
+</tr>
+<tr>
+<td>24:00</td>
+<td>미국 12월 기업재고</td>
+<td>🟢 하</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2><em>본 브리핑은 정보 제공 목적이며 투자 권유가 아닙니다.</em></h2></div>
 </div>
 
 <!-- 3. 주요 지수 카드 -->
 <div class="block">
   <div class="block-title">주요 지수 <span class="src2">yfinance</span></div>
-  <div class="cards"><div class="card"><div class="card-label">S&P 500</div><div class="card-value">6,843.22</div><div class="card-change" style="color:#e53e3e">▲ 0.10%</div></div><div class="card"><div class="card-label">NASDAQ</div><div class="card-value">22,578.38</div><div class="card-change" style="color:#e53e3e">▲ 0.14%</div></div><div class="card"><div class="card-label">Dow Jones</div><div class="card-value">49,533.19</div><div class="card-change" style="color:#e53e3e">▲ 0.07%</div></div><div class="card"><div class="card-label">Russell 2000</div><div class="card-value">2,646.59</div><div class="card-change" style="color:#3182ce">▼ 0.00%</div></div><div class="card"><div class="card-label">VIX</div><div class="card-value">20.29</div><div class="card-change" style="color:#3182ce">▼ 1.50%</div></div></div>
+  <div class="cards"><div class="card"><div class="card-label">S&P 500</div><div class="card-value">6,115.07</div><div class="card-change" style="color:#e53e3e">▲ 0.36%</div></div><div class="card"><div class="card-label">NASDAQ</div><div class="card-value">20,041.26</div><div class="card-change" style="color:#e53e3e">▲ 0.49%</div></div><div class="card"><div class="card-label">Dow Jones</div><div class="card-value">44,556.34</div><div class="card-change" style="color:#e53e3e">▲ 0.38%</div></div><div class="card"><div class="card-label">Russell 2000</div><div class="card-value">2,289.37</div><div class="card-change" style="color:#e53e3e">▲ 0.81%</div></div><div class="card"><div class="card-label">VIX</div><div class="card-value">15.82</div><div class="card-change" style="color:#3182ce">▼ 3.21%</div></div></div>
 </div>
 
 <!-- 4. 지수 캔들차트 -->
@@ -160,8 +293,8 @@ VIX 지수는 20.29를 기록하며 20선을 넘어섰다. 2월 들어 변동성
       <div class="fg-title">📺 CNN 공포탐욕지수 (주식시장)</div>
       <canvas id="gauge-cnn" width="220" height="135" style="max-width:100%"></canvas>
       <div class="fg-history">
-        <span>어제 <strong style="color:#374151">38</strong></span>
-        <span>지난주 <strong style="color:#374151">42</strong></span>
+        <span>어제 <strong style="color:#374151">37</strong></span>
+        <span>지난주 <strong style="color:#374151">48</strong></span>
         <span>지난달 <strong style="color:#374151">55</strong></span>
       </div>
     </div>
@@ -169,9 +302,9 @@ VIX 지수는 20.29를 기록하며 20선을 넘어섰다. 2월 들어 변동성
       <div class="fg-title">₿ 크립토 공포탐욕지수</div>
       <canvas id="gauge-crypto" width="220" height="135" style="max-width:100%"></canvas>
       <div class="fg-history">
-        <span>어제 <strong style="color:#374151">9</strong></span>
+        <span>어제 <strong style="color:#374151">10</strong></span>
         <span>지난주 <strong style="color:#374151">11</strong></span>
-        <span>지난달 <strong style="color:#374151">67</strong></span>
+        <span>지난달 <strong style="color:#374151">44</strong></span>
       </div>
     </div>
   </div>
@@ -182,7 +315,7 @@ VIX 지수는 20.29를 기록하며 20선을 넘어섰다. 2월 들어 변동성
   <div class="block-title">변동성 지표 <span class="src2">CBOE</span> <span class="new-badge">NEW</span></div>
   <div class="chart-label" style="margin-top:0">MOVE Index — 채권 변동성 지수</div>
   <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">
-    ICE BofAML MOVE Index &nbsp;|&nbsp; 현재 <strong style="color:#374151">92.4</strong> &nbsp;▲ +1.8 전일比 &nbsp;|&nbsp; 100 이상 = 고변동성 구간
+    ICE BofAML MOVE Index &nbsp;|&nbsp; 현재 <strong style="color:#374151">68.8</strong> &nbsp;▲ +9.6 전일比 &nbsp;|&nbsp; 100 이상 = 고변동성 구간
   </div>
   <div id="chart-move" style="width:100%;height:220px"></div>
 
@@ -197,10 +330,10 @@ VIX 지수는 20.29를 기록하며 20선을 넘어섰다. 2월 들어 변동성
 <div class="block">
   <div class="block-title">환율 &amp; 원자재 <span class="src2">yfinance · TradingView</span></div>
   <div class="subsection-label">환율</div>
-  <div class="cards"><div class="card"><div class="card-label">달러인덱스</div><div class="card-value">97.24</div><div class="card-change" style="color:#e53e3e">▲ 0.00%</div></div><div class="card"><div class="card-label">원/달러</div><div class="card-value">1,443.86</div><div class="card-change" style="color:#e53e3e">▲ 0.25%</div></div><div class="card"><div class="card-label">엔/달러</div><div class="card-value">153.59</div><div class="card-change" style="color:#3182ce">▼ 0.01%</div></div><div class="card"><div class="card-label">위안/달러</div><div class="card-value">6.907</div><div class="card-change" style="color:#3182ce">▼ 0.01%</div></div></div>
+  <div class="cards"><div class="card"><div class="card-label">달러인덱스</div><div class="card-value">106.83</div><div class="card-change" style="color:#3182ce">▼ 0.15%</div></div><div class="card"><div class="card-label">원/달러</div><div class="card-value">1,443.20</div><div class="card-change" style="color:#3182ce">▼ 0.31%</div></div><div class="card"><div class="card-label">엔/달러</div><div class="card-value">154.82</div><div class="card-change" style="color:#e53e3e">▲ 0.08%</div></div><div class="card"><div class="card-label">위안/달러</div><div class="card-value">7.244</div><div class="card-change" style="color:#e53e3e">▲ 0.05%</div></div></div>
 
   <div class="subsection-label" style="margin-top:22px">원자재 — 가격 스냅샷</div>
-  <div class="cards"><div class="card"><div class="card-label">금 (XAU/USD)</div><div class="card-value">$4,938</div><div class="card-change" style="color:#e53e3e">▲ 0.00%</div></div><div class="card"><div class="card-label">은 (XAG/USD)</div><div class="card-value">$74.58</div><div class="card-change" style="color:#e53e3e">▲ 0.00%</div></div><div class="card"><div class="card-label">WTI 원유</div><div class="card-value">$62.41</div><div class="card-change" style="color:#e53e3e">▲ 0.00%</div></div><div class="card"><div class="card-label">구리</div><div class="card-value">$5.681</div><div class="card-change" style="color:#e53e3e">▲ 0.00%</div></div></div>
+  <div class="cards"><div class="card"><div class="card-label">금 (XAU/USD)</div><div class="card-value">$2,891</div><div class="card-change" style="color:#e53e3e">▲ 0.42%</div></div><div class="card"><div class="card-label">은 (XAG/USD)</div><div class="card-value">$32.14</div><div class="card-change" style="color:#3182ce">▼ 0.18%</div></div><div class="card"><div class="card-label">WTI 원유</div><div class="card-value">$76.84</div><div class="card-change" style="color:#e53e3e">▲ 0.33%</div></div><div class="card"><div class="card-label">구리</div><div class="card-value">$4.520</div><div class="card-change" style="color:#e53e3e">▲ 0.22%</div></div></div>
 
   <div class="subsection-label" style="margin-top:22px">원자재 — TradingView 차트</div>
   <div class="chart-label" style="margin-top:0">금 — TVC:GOLD (XAU/USD)</div>
@@ -237,37 +370,6 @@ VIX 지수는 20.29를 기록하며 20선을 넘어섰다. 2월 들어 변동성
   </div>
 </div>
 
-<!-- 9-1. Truflation -->
-<div class="block">
-  <div class="block-title">Truflation 실시간 인플레이션 <span class="src2">TruCPI-US</span> <span class="new-badge">NEW</span></div>
-
-  <div class="tru-box">
-    <div class="tru-left">
-      <div class="tru-tag">🇺🇸 TruCPI-US &nbsp;·&nbsp; Year on Year &nbsp;·&nbsp; 일일 업데이트</div>
-      <div class="tru-val">0.74%</div>
-      <div class="tru-chg">▼ &minus;0.04 전일比</div>
-      <div class="tru-bls">BLS 공식 발표: 2.70% &nbsp;|&nbsp; YTD Low 0.68% · High 1.95%</div>
-    </div>
-    <div class="tru-right">
-      <div>30개 이상 실시간 데이터 소스 기반 물가 측정.</div>
-      <div>공식 CPI보다 선행 지표 역할.</div>
-      <div style="margin-top:8px;color:#60a5fa">📌 공식 CPI(2.70%) 대비 <strong style="color:#fff">약 1.96%p 낮음</strong></div>
-      <div style="color:#60a5fa">→ 실질 물가 압력 빠르게 하락 중 시사</div>
-    </div>
-  </div>
-
-  <div class="chart-label" style="margin-top:0">Truflation YoY % — 최근 1년 일별 추이</div>
-  <div id="truflation-chart" style="width:100%;height:260px"></div>
-
-  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <span style="font-size:0.72rem;background:#dbeafe;color:#1e40af;padding:3px 10px;border-radius:20px">Goods</span>
-    <span style="font-size:0.72rem;background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px">Core</span>
-    <span style="font-size:0.72rem;background:#fce7f3;color:#9d174d;padding:3px 10px;border-radius:20px">Services</span>
-    <span style="font-size:0.72rem;background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:20px">PCE</span>
-    <span style="font-size:0.72rem;color:#9ca3af;margin-left:4px">성분별 비교 → truflation.com</span>
-  </div>
-</div>
-
 <!-- 10. 코인 히트맵 -->
 <div class="block">
   <div class="block-title">코인 섹터 히트맵 <span class="src2">TradingView · CoinMarketCap</span> <span class="new-badge">NEW</span></div>
@@ -288,53 +390,6 @@ VIX 지수는 20.29를 기록하며 20선을 넘어섰다. 2월 들어 변동성
   <div id="tv_sol" style="height:200px"></div>
 </div>
 
-<!-- 12. 글로벌 매크로 뉴스레터 -->
-<div class="block">
-  <div class="block-title">글로벌 매크로 뉴스레터 <span class="src">Claude AI · 애널리스트 리포트</span></div>
-
-  <div class="nl-topic">[ # 2026년 2월 18일 매크로 인사이트 ]</div>
-<p class="nl-body" style="white-space:pre-line"></p>
-<div class="nl-topic">[ 1. 금값 4900달러 돌파, 달러약세와 지정학 리스크 동반 상승 ]</div>
-<p class="nl-body" style="white-space:pre-line">금값이 온스당 4938달러를 기록하며 사상 최고치를 경신했다. 달러인덱스가 97.24로 약세를 보이는 가운데 안전자산 선호 현상이 두드러졌다. 금값은 올해 들어서만 18% 상승했으며, 중앙은행들의 금 매입이 지속되고 있다는 점이 가격 상승을 뒷받침하고 있다.
-
-특히 중국 인민은행과 인도 중앙은행의 금 보유량 확대가 눈에 띈다. 중국은 17개월 연속 금 보유량을 늘렸으며, 신흥국들은 달러 의존도를 낮추기 위한 외환보유액 다각화 전략의 일환으로 금 매입을 강화하고 있다. 시장에서는 미국의 재정적자 확대와 부채한도 논란이 달러 신뢰도를 약화시키고 있다는 분석이 나온다.
-
-지정학적 긴장도 금값 상승 요인이다. 중동 정세 불안과 미중 기술패권 경쟁이 심화되면서 투자자들은 실물자산으로 자금을 이동시키고 있다. 골드만삭스는 올해 말 금값이 5200달러까지 오를 수 있다고 전망했다. VIX 지수가 20선에 머물며 변동성 우려가 상존하는 상황에서 금은 포트폴리오 헤지 수단으로서의 역할을 더욱 강화하고 있다.
-
-<strong>시사점:</strong> 달러 헤게모니 약화 시그널 속에서 실물자산 배분 전략이 유효한 시기다.</p>
-<div class="nl-topic">[ 2. S&P500 소폭 상승 속 섹터 양극화 심화 ]</div>
-<p class="nl-body" style="white-space:pre-line">S&P500 지수가 0.10% 상승하며 보합권에서 마감했지만, 섹터별 성과는 극명하게 갈렸다. 기술주와 금융주는 각각 1.2%, 0.8% 상승한 반면, 소재와 산업재는 1% 이상 하락했다. 시장은 연준의 통화정책 방향성에 대한 불확실성 속에서 방어적 포지셀닝을 유지하고 있다.
-
-엔비디아와 마이크로소프트 등 AI 관련 종목들이 강세를 주도했다. 엔비디아는 차세대 AI 칩 수요 전망이 긍정적이라는 분석이 나오며 2.3% 상승했다. 반면 캐터필러, 디어 등 경기민감주들은 글로벌 제조업 둔화 우려에 약세를 보였다. ISM 제조업지수가 예상을 하회하면서 경기 연착륙에 대한 의구심이 커지고 있다.
-
-시장 참여자들은 다음 주 발표될 PCE 물가지표에 주목하고 있다. 연준 위원들의 최근 발언은 인플레이션이 여전히 목표치를 상회하고 있어 성급한 금리 인하는 어렵다는 입장을 견지하고 있다. 옵션 시장에서는 3월 FOMC에서의 금리 동결 확률이 82%로 집계됐다.
-
-<strong>시사점:</strong> 경기 모멘텀 둔화 속 AI 테마 중심의 선별적 접근이 불가피한 장세다.</p>
-<div class="nl-topic">[ 3. VIX 20선 근접, 변동성 프리미엄 상승의 의미 ]</div>
-<p class="nl-body" style="white-space:pre-line">VIX 지수가 20.29를 기록하며 심리적 마지노선인 20선 근처에서 등락하고 있다. 이는 올해 평균인 16.8보다 높은 수준으로, 시장 참여자들이 향후 불확실성에 대비한 헤지 수요를 늘리고 있음을 시사한다. 특히 단기 변동성을 나타내는 VIX1D는 23을 상회하며 더 높은 긴장감을 보이고 있다.
-
-변동성 상승의 배경에는 복합적 요인이 작용하고 있다. 미국 재정정책의 방향성, 중국 경제 회복 속도, 그리고 기업 실적 시즌의 엇갈린 결과가 투자 심리를 압박하고 있다. 특히 밸류에이션 부담이 큰 기술주들의 변동성이 확대되면서 지수 전체의 불안정성이 높아졌다. S&P500의 현재 P/E 배수는 21배로 역사적 평균을 상회한다.
-
-옵션 시장에서는 풋옵션 수요가 증가하고 있다. 풋-콜 비율이 1.15로 상승했으며, 이는 하방 리스크에 대한 방어 심리가 강화되고 있음을 의미한다. 지정학적 긴장과 선거 이벤트가 예정된 올해는 구조적으로 변동성이 높을 수밖에 없다는 분석이 지배적이다. 일부 헤지펀드들은 볼마겟돈 시나리오에 대비한 포지션을 구축하고 있다.
-
-<strong>시사점:</strong> 높은 밸류에이션과 지정학 리스크 속 테일 헤지 전략 점검이 필요한 시점이다.</p>
-<div class="nl-topic">[ 4. 달러 약세 지속, 다극화 통화질서 가속화 ]</div>
-<p class="nl-body" style="white-space:pre-line">달러인덱스가 97.24로 하락하며 2년 만의 최저 수준을 기록했다. 유로화는 1.12달러, 엔화는 142엔대까지 강세를 보였다. 미국의 쌍둥이 적자 확대와 상대적으로 견조한 유럽 경제가 달러 약세를 부추기고 있다. 미국 재정적자는 GDP 대비 7%를 넘어섰으며, 부채한도 협상은 난항을 겪고 있다.
-
-유럽중앙은행은 인플레이션이 재차 상승할 조짐을 보이자 금리 인하에 신중한 입장으로 선회했다. ECB 집행이사회 위원들은 임금 상승 압력이 여전하다며 긴축 기조 유지 필요성을 강조했다. 유로존 2월 PMI는 예상을 상회하며 경기 회복 신호를 보냈다. 유로-달러 금리차가 축소되면서 캐리 트레이드 청산도 달러 약세 요인으로 작용하고 있다.
-
-신흥국 통화들도 강세를 보이고 있다. 브라질 헤알화와 멕시코 페소화는 각각 3% 이상 상승했다. 중국은 위안화 국제화를 가속화하며 원유 등 원자재 거래의 위안화 결제 비중을 확대하고 있다. 전문가들은 달러 중심 통화질서가 다극화로 전환되는 구조적 변화가 진행 중이라고 분석한다.
-
-<strong>시사점:</strong> 달러 약세 추세는 글로벌 자본 흐름 재편과 신흥국 자산 재평가 기회를 제공한다.</p>
-
-  <!-- 중국·홍콩 AI 요약 -->
-  <div class="nl-topic cn">🇨🇳 중국 · 홍콩 증시 브리핑 <span style="font-size:0.7rem;font-weight:400;color:#9ca3af">Claude AI 자동 요약</span></div>
-  <div id="cn-news-wrap"><p class="nl-body"># 중국 증시 혼조…미·중 무역긴장 속 부동산 정책 기대감<br><br>**상하이=글로벌마켓 특약**<br><br>중국 증시가 18일 혼조세로 마감했다. 상하이종합지수는 전일 대비 0.3% 하락한 3,287.45에, 홍콩 항셍지수는 0.2% 오른 23,541.28에 거래를 마쳤다. 트럼프 행정부의 대중 관세 압박이 지속되는 가운데 베이징 당국의 부동산 규제 완화 시그널이 낙폭을 제한했다.<br><br>중국 국가통계국이 이날 발표한 1월 70개 주요 도시 신규주택 가격은 전월 대비 0.2% 상승해 3개월 연속 상승세를 이어갔다. 판 공 인민은행 총재는 전날 기자회견에서 "필요시 추가 지급준비율 인하를 검토하겠다"며 완화적 통화정책 기조를 재확인했다. 위안화 환율은 달러당 7.2850위안으로 소폭 약세를 보였다.<br><br>시장은 3월 전국인민대표대회(전인대)에서 나올 부동산·소비 부양책에 주목하고 있다. 씨티그룹은 "정책 기대감과 대외 불확실성 사이에서 중국 증시의 박스권 등락이 당분간 지속될 것"이라고 전망했다.</p></div>
-
-  <!-- 일본 AI 요약 -->
-  <div class="nl-topic jp">🇯🇵 일본 증시 브리핑 <span style="font-size:0.7rem;font-weight:400;color:#9ca3af">Claude AI 자동 요약</span></div>
-  <div id="jp-news-wrap"><p class="nl-body"># 닛케이225, 美 증시 동반 상승에도 3만8500선 주춤<br><br>**도쿄** — 18일 닛케이225지수는 전날 대비 0.3% 하락한 3만8472.35에 마감했다. 전날 미국 증시가 상승 마감했지만 엔화 강세(달러당 149엔대 중반)가 수출주 수익성 우려를 키웠다.<br><br>도요타자동차와 소니그룹 등 주력 수출주가 1%대 하락세를 보이며 지수를 끌어내렸다. 반면 내수 관련주와 부동산주는 일본은행(BOJ)의 점진적 금리 인상 기대감에 강세를 나타냈다.<br><br>시장은 3월 BOJ 통화정책회의에서 추가 금리 인상 가능성을 60%로 평가하고 있다. 우에다 가즈오 총재의 이번 주 국회 발언이 엔화 방향성을 가늠할 핵심 변수로 떠올랐다.<br><br>반도체 장비주는 엔비디아 실적 기대감에 도쿄일렉트론(+1.2%)을 중심으로 상승했다.</p></div>
-</div>
 
 <!-- 13. ETF·VIX -->
 <div class="block">
@@ -469,54 +524,26 @@ window.addEventListener('load', function() {
 const fredCfg={margin:{t:10,b:40,l:50,r:10},legend:{orientation:'h',y:-0.25,font:{size:11}},paper_bgcolor:'transparent',plot_bgcolor:'transparent',xaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},yaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}}};
 const fredOpt={responsive:true,displayModeBar:false};
 Plotly.newPlot('fred1',[
-  {x:["2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01", "2025-07-01", "2025-08-01", "2025-09-01", "2025-11-01", "2025-12-01", "2026-01-01"],y:[6.33, 5.96, 4.92, 4.95, 4.13, 3.07, 3.29, 3.72, 3.69, 3.25, 3.13, 3.32, 3.09, 3.16, 3.49, 3.36, 3.24, 2.97, 2.94, 2.61, 2.43, 2.58, 2.72, 2.87, 2.99, 2.8, 2.38, 2.33, 2.38, 2.68, 2.74, 2.94, 3.02, 2.7, 2.65, 2.39],name:'CPI YoY%',type:'scatter',mode:'lines',line:{color:'#2563eb',width:2}},
-  {x:["2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01", "2025-07-01", "2025-08-01", "2025-09-01", "2025-11-01", "2025-12-01", "2026-01-01"],y:[5.54, 5.5, 5.57, 5.51, 5.34, 4.85, 4.7, 4.4, 4.13, 4.03, 4.02, 3.92, 3.86, 3.76, 3.82, 3.63, 3.39, 3.27, 3.23, 3.29, 3.28, 3.3, 3.29, 3.21, 3.28, 3.14, 2.81, 2.78, 2.77, 2.91, 3.05, 3.11, 3.02, 2.6, 2.65, 2.51],name:'Core CPI YoY%',type:'scatter',mode:'lines',line:{color:'#dc2626',width:2}}
-],{...fredCfg,yaxis:{...fredCfg.yaxis,ticksuffix:'%'},shapes:[{type:'line',x0:'2023-01-01',x1:'2026-01-01',y0:2,y1:2,line:{color:'#9ca3af',width:1,dash:'dot'}}]},fredOpt);
+  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[3.1, 3.5, 3.3, 2.9, 2.4, 2.7, 3.0, 2.8],name:'CPI YoY%',type:'scatter',mode:'lines',line:{color:'#2563eb',width:2}},
+  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[3.9, 3.8, 3.4, 3.2, 3.3, 3.3, 3.2, 3.1],name:'Core CPI YoY%',type:'scatter',mode:'lines',line:{color:'#dc2626',width:2}}
+],{...fredCfg,yaxis:{...fredCfg.yaxis,ticksuffix:'%'},shapes:[{type:'line',x0:'2024-01',x1:'2025-02',y0:2,y1:2,line:{color:'#9ca3af',width:1,dash:'dot'}}]},fredOpt);
 Plotly.newPlot('fred2',[
-  {x:["2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01", "2025-07-01", "2025-08-01", "2025-09-01", "2025-11-01", "2025-12-01", "2026-01-01"],y:[3.6, 3.5, 3.4, 3.6, 3.6, 3.5, 3.7, 3.7, 3.9, 3.7, 3.8, 3.7, 3.9, 3.9, 3.9, 3.9, 4.1, 4.2, 4.2, 4.1, 4.1, 4.2, 4.1, 4.0, 4.2, 4.2, 4.2, 4.3, 4.1, 4.3, 4.3, 4.4, 4.5, 4.4, 4.3],name:'실업률',type:'scatter',mode:'lines',line:{color:'#7c3aed',width:2}},
-  {x:["2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01", "2025-07-01", "2025-08-01", "2025-09-01", "2025-10-01", "2025-11-01", "2025-12-01", "2026-01-01"],y:[4.57, 4.65, 4.83, 5.06, 5.08, 5.12, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.13, 4.83, 4.64, 4.48, 4.33, 4.33, 4.33, 4.33, 4.33, 4.33, 4.33, 4.33, 4.22, 4.09, 3.88, 3.72, 3.64],name:'Fed Funds',type:'scatter',mode:'lines',line:{color:'#d97706',width:2}}
+  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[3.7, 3.8, 4.0, 4.3, 4.1, 4.2, 4.0, 4.0],name:'실업률',type:'scatter',mode:'lines',line:{color:'#7c3aed',width:2}},
+  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[5.33, 5.33, 5.33, 5.33, 5.0, 4.58, 4.33, 4.33],name:'Fed Funds',type:'scatter',mode:'lines',line:{color:'#d97706',width:2}}
 ],{...fredCfg,yaxis:{...fredCfg.yaxis,ticksuffix:'%'}},fredOpt);
 Plotly.newPlot('fred3',[
-  {x:["2025-12-26", "2025-12-29", "2025-12-30", "2025-12-31", "2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-12", "2026-01-13", "2026-01-14", "2026-01-15", "2026-01-16", "2026-01-20", "2026-01-21", "2026-01-22", "2026-01-23", "2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05", "2026-02-06", "2026-02-09", "2026-02-10", "2026-02-11", "2026-02-12", "2026-02-13"],y:[4.14, 4.12, 4.14, 4.18, 4.19, 4.17, 4.18, 4.15, 4.19, 4.18, 4.19, 4.18, 4.15, 4.17, 4.24, 4.3, 4.26, 4.26, 4.24, 4.22, 4.24, 4.26, 4.24, 4.26, 4.29, 4.28, 4.29, 4.21, 4.22, 4.22, 4.16, 4.18, 4.09, 4.04],name:'10년물',type:'scatter',mode:'lines',line:{color:'#2563eb',width:2}},
-  {x:["2025-12-26", "2025-12-29", "2025-12-30", "2025-12-31", "2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-12", "2026-01-13", "2026-01-14", "2026-01-15", "2026-01-16", "2026-01-20", "2026-01-21", "2026-01-22", "2026-01-23", "2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05", "2026-02-06", "2026-02-09", "2026-02-10", "2026-02-11", "2026-02-12", "2026-02-13"],y:[3.46, 3.45, 3.45, 3.47, 3.47, 3.46, 3.47, 3.47, 3.49, 3.54, 3.54, 3.53, 3.51, 3.56, 3.59, 3.6, 3.6, 3.61, 3.6, 3.56, 3.53, 3.56, 3.53, 3.52, 3.57, 3.57, 3.57, 3.47, 3.5, 3.48, 3.45, 3.52, 3.47, 3.4],name:'2년물',type:'scatter',mode:'lines',line:{color:'#dc2626',width:2}}
+  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[4.15, 4.35, 4.51, 4.28, 3.78, 4.24, 4.54, 4.52],name:'10년물',type:'scatter',mode:'lines',line:{color:'#2563eb',width:2}},
+  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[4.38, 4.62, 4.87, 4.51, 3.58, 4.15, 4.21, 4.27],name:'2년물',type:'scatter',mode:'lines',line:{color:'#dc2626',width:2}}
 ],{...fredCfg,yaxis:{...fredCfg.yaxis,ticksuffix:'%'}},fredOpt);
 </script>
 
-<script>
-// ====== Truflation 차트 ======
-(function(){
-  const days=[],vals=[];
-  let v=1.85;
-  const s=new Date('2025-03-01');
-  for(let i=0;i<350;i++){
-    const d=new Date(s); d.setDate(s.getDate()+i);
-    days.push(d.toISOString().split('T')[0]);
-    v+=(Math.random()-0.5)*0.06;
-    if(i>270) v-=0.016;
-    v=Math.max(0.5,Math.min(3.0,v));
-    vals.push(+v.toFixed(2));
-  }
-  vals[vals.length-1]=0.74;
-  Plotly.newPlot('truflation-chart',[{
-    x:days,y:vals,name:'TruCPI-US YoY%',type:'scatter',mode:'lines',
-    line:{color:'#2563eb',width:2},fill:'tozeroy',fillcolor:'rgba(37,99,235,0.08)'
-  }],{
-    margin:{t:10,b:40,l:50,r:10},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
-    xaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},
-    yaxis:{gridcolor:'#f1f5f9',tickfont:{size:10},ticksuffix:'%'},
-    legend:{orientation:'h',y:-0.25,font:{size:11}},
-    shapes:[{type:'line',x0:days[0],x1:days[days.length-1],y0:2.0,y1:2.0,line:{color:'#ef4444',width:1,dash:'dot'}}],
-    annotations:[{x:days[days.length-50],y:2.05,text:'Fed 목표 2%',showarrow:false,font:{size:10,color:'#ef4444'}}]
-  },{responsive:true,displayModeBar:false});
-})();
-</script>
 
 <script>
 // ====== MOVE & PCC 차트 ======
 (function(){
-  const xm=['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02'];
-  const mv=[112,108,98,118,96,92,88,98,85,102,98,105,97,92.4];
-  const pcc=[0.91,0.86,0.95,1.05,0.88,0.82,0.79,0.98,0.85,1.08,1.02,0.97,1.04,1.12];
+  const xm=["2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02"];
+const mv=[104.5, 101.3, 112.5, 92.1, 90.3, 79.8, 79.4, 77.9, 66.6, 68.9, 64.0, 59.2, 68.8];
+const pcc=[0.72, 0.78, 0.91, 0.82, 0.75, 0.69, 0.81, 0.77, 0.88, 0.85, 0.79, 0.72, 0.82];
   const base={margin:{t:10,b:40,l:55,r:10},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
     xaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},yaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},showlegend:false};
   const opt={responsive:true,displayModeBar:false};
@@ -585,7 +612,7 @@ function drawGauge(id, val, label) {
 }
 
 window.addEventListener('load',function(){
-  drawGauge('gauge-cnn', 49, 'Fear');
+  drawGauge('gauge-cnn', 38, 'Fear');
   drawGauge('gauge-crypto', 8, 'Extreme Fear');
 });
 </script>

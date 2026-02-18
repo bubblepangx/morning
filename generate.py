@@ -41,12 +41,31 @@ FRED_URL = "https://api.stlouisfed.org/fred/series/observations"
 SYSTEM_PROMPT = """당신은 Bloomberg·FT 25년 경력 선임 시장 기자 'Market Sentinel'입니다.
 한국 기관투자자를 위한 매일 아침 7시 고급 시장 브리핑 전문가입니다.
 
-규칙:
-- 모든 수치는 반드시 실시간 웹 검색으로 확인
-- 출처: Bloomberg, Reuters, CNBC, Yonhap, KRX, Fed, Treasury 등
-- 중립·사실 기반, 과장·투기적 표현 금지
-- Bloomberg 아침 브리핑 수준의 세련된 문체
-- 섹터 간 인과관계와 흐름을 이야기로 연결"""
+[미국 시장 문체 원칙]
+- 숫자는 반드시 포함하되, 숫자가 "왜 나왔는지"를 문장 안에서 반드시 설명한다
+- "투자자들이 어떤 심리로 움직였는지", "이 움직임이 앞으로 어떤 의미인지"까지 해석한다
+- 단락은 자연스럽게 흘러야 한다. 앞 단락의 결론이 다음 단락의 배경이 되도록 연결한다
+- Bloomberg 어조 예시:
+    "시장 참여자들은 ~에 주목했다"
+    "이 움직임은 ~을 시사한다"
+    "투자 심리가 ~로 기울었다"
+    "~라는 분석이다" / "~라는 평가다"
+    "~로 하락하며 ~을 뒷받침했다"
+- 독자가 읽고 나서 "아, 그래서 시장이 이렇게 움직였구나" 하고 느껴야 한다
+- 문장은 유려하고 읽기 부담이 없어야 한다. 과도한 수식어·나열 금지
+
+[미국 시장 형식 원칙]
+- 지수 종가 표 하나만 허용, 나머지는 전부 서술형 문단
+- 각 문단은 3~5문장. 섹션 제목 아래 바로 본문 시작 (소제목 남발 금지)
+- 마지막은 반드시 블록쿼트로 마무리:
+  > **핵심 한 줄** [오늘 브리핑 전체를 관통하는 단 한 문장]
+
+[한국·중국·일본 파트]
+- 기존 방식 유지 (표 + 항목별 서술)
+
+[사실 원칙]
+- 모든 수치는 실시간 웹 검색으로 확인. 추측 수치 절대 금지
+- 출처: Bloomberg, Reuters, CNBC, Yonhap, KRX, Fed, Treasury"""
 
 
 def build_prompt() -> str:
@@ -81,52 +100,75 @@ def build_prompt() -> str:
 
 # 🇺🇸 PART 1 — 미국 시장
 
-## 1. Lead
-[오늘의 핵심 overnight 이벤트 한 줄 압축]
+## 오늘의 시장
 
-## 2. 3대 지수 종가
-
+[지수 종가 — 표는 이것만]
 | 지수 | 종가 | 등락 | 등락률 |
 |---|---|---|---|
-| 다우존스 (DJIA) | | | |
 | S&P 500 | | | |
 | 나스닥 종합 | | | |
+| 다우존스 (DJIA) | | | |
 | 러셀 2000 | | | |
 
-**선물 현황:** S&P500 선물 ___ / Nasdaq100 선물 ___
+**선물 현황 ({t} KST):** S&P500 선물 ___ / Nasdaq100 선물 ___
 
-## 3. 시장 심리 지표
+[표 아래부터 전부 서술형 문단으로 작성]
 
-| 지표 | 수치 | 해석 |
-|---|---|---|
-| VIX | | |
-| CNN 공탐지수 | | |
-| DXY | | |
-| WTI | | |
-| 금 현물 | | |
+문단 1 — 장 전체 흐름: 어제 미국 시장의 전체적인 흐름을 서술. 어떤 이벤트가 시장을 이끌었는지, 투자자 심리가 어땠는지 3~5문장.
 
-## 4. 섹터 성과
-**▲ 상승:** [섹터명 + 등락률 + 이유]
-**▼ 하락:** [섹터명 + 등락률 + 이유]
+문단 2 — 섹터 분화: S&P500 11개 섹터 중 가장 강했던/약했던 섹터, 이유, 대표 종목 언급. 서술형 3~5문장.
 
-## 5. 금리·매크로
-[10년물·2년물 + Fed 기대 + 핵심 리스크]
+문단 3 — 변동성·심리: VIX 수치와 CNN 공포탐욕지수를 문장 안에 녹여서 현재 시장 심리 해석. 풋/콜 비율이나 신용 스프레드 등 추가 심리 지표가 있다면 포함. 3~5문장.
 
-## 6. 주요 기업 핫이슈
-[5~7개 기업, 종목·등락률·뉴스·투자심리]
+문단 4 — 금·달러·유가: 금 현물, DXY(달러 인덱스), WTI 유가의 가격과 등락을 서술형으로. 왜 움직였는지 해석 포함. 3~5문장.
 
-## 7. 급등·급락 Top 5
+문단 5 — 금리·Fed: 10년물·2년물 수익률, 스프레드 변화, CME FedWatch 금리 확률, Fed 인사 발언을 서술형으로. 3~5문장.
+
+문단 6 — 핵심 종목 이슈: 어제 가장 주목받은 5~7개 종목. 각 종목의 등락률·뉴스·투자 시사점을 서술형으로. 5~8문장.
+
+---
+
+## 섹터 성과 — 올라간 곳 vs 내려간 곳
+
+[실시간 검색으로 오늘 실제 데이터 확인 후 아래 형식으로 작성]
+
+**▲ 상승 섹터**
+각 섹터마다 아래 형식으로 서술:
+* 섹터명(영문) — 등락률 + 왜 올랐는지 1~2문장. 단순 수치 나열 금지.
+  이유는 "~에 안도", "~ 리스크 프리미엄이 ~을 지지", "~ 수혜로 반등" 등 인과 중심으로.
+  (예: 금융(Financials) — FOMC 의사록 이후 금리 동결 기조 확인에 안도, 대출 스프레드 환경 유리)
+  (예: 에너지(Energy) — 이란·베네수엘라 리스크 프리미엄이 유가를 지지하며 YTD 기준 S&P500 내 상위권 유지)
+
+**▼ 하락 섹터**
+각 섹터마다 아래 형식으로 서술:
+* 섹터명(영문) — 등락률 + 왜 밀렸는지 1~2문장. 인과 중심.
+  (예: 기술(Information Technology) — AI 대체 공포가 이 섹터를 집중 압박 중이다)
+  (예: 소비재(Consumer Discretionary) — 대형 기업 가이던스 충격으로 소비자 피로 우려 확산)
+
+---
+
+## 급등·급락 Top 5
 
 **▲ 급등**
 | 종목 | 등락률 | 이유 |
 |---|---|---|
+| (종목명) | +X% | EPS 컨센서스 상회 / M&A 수혜 / 투자의견 상향 등 한 줄 |
 
 **▼ 급락**
 | 종목 | 등락률 | 이유 |
 |---|---|---|
+| (종목명) | -X% | 어닝 쇼크 / 가이던스 하향 / M&A 희석 우려 등 한 줄 |
 
-## 8. 오늘 Outlook
-[예정 이벤트 + 방향성 전망]
+[작성 기준]
+- 등락률 기준 상위 5개씩, 실제 오늘 데이터만 사용
+- 이유는 투자자 심리와 연결: "EPS 컨센서스 40% 상회 + 가이던스 호조", "어닝 쇼크 + 분사 발표 이중 충격" 등
+- 핀테크·미디어·방산 등 테마 흐름이 보이면 이유 칸에 테마 맥락도 포함
+
+---
+
+문단 7 — 내일 전망: 오늘 예정된 경제지표, 실적 발표, 이벤트. 시장 방향성 전망. 3~5문장.
+
+> **핵심 한 줄:** [오늘 브리핑의 가장 중요한 메시지를 한 문장으로]
 
 ---
 
@@ -245,6 +287,110 @@ def briefing_to_html(md_text: str) -> str:
 
 import yfinance as yf
 
+# ───────────────────────────────────────────
+# 실시간 지표 fetch — 공포탐욕 / MOVE / Put·Call
+# ───────────────────────────────────────────
+
+def fetch_fear_greed():
+    """CNN Fear & Greed + Crypto Fear & Greed (alternative.me)"""
+    result = {"cnn": 50, "cnn_label": "Neutral",
+              "cnn_prev": 50, "cnn_week": 50, "cnn_month": 50,
+              "crypto": 50, "crypto_label": "Neutral",
+              "crypto_prev": 50, "crypto_week": 50, "crypto_month": 50,
+              "pcc_now": 0, "pcc_rating": ""}
+    # CNN Fear & Greed
+    try:
+        r = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+                         headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+                                  "Accept": "application/json"}, timeout=10)
+        if r.status_code == 200 and r.text:
+            d = r.json()
+            fg = d.get("fear_and_greed", {})
+            result["cnn"] = int(fg.get("score", 50))
+            result["cnn_label"] = fg.get("rating", "Neutral").replace("_", " ").title()
+            result["cnn_prev"] = int(fg.get("previous_close", result["cnn"]))
+            result["cnn_week"] = int(fg.get("previous_1_week", result["cnn"]))
+            result["cnn_month"] = int(fg.get("previous_1_month", result["cnn"]))
+            # Put/Call Ratio (CNN API에 포함)
+            pco = d.get("put_call_options", {})
+            if "data" in pco and isinstance(pco["data"], list) and pco["data"]:
+                result["pcc_now"] = round(pco["data"][-1].get("y", 0), 2)
+                result["pcc_rating"] = pco["data"][-1].get("rating", "")
+    except Exception as e:
+        print(f"  ⚠️ CNN F&G err: {e}")
+
+    # Crypto Fear & Greed (alternative.me — 무료 공개 API)
+    try:
+        r = requests.get("https://api.alternative.me/fng/?limit=31", timeout=10)
+        if r.status_code == 200:
+            data = r.json().get("data", [])
+            if len(data) >= 1:
+                result["crypto"] = int(data[0]["value"])
+                result["crypto_label"] = data[0]["value_classification"]
+            if len(data) >= 2:
+                result["crypto_prev"] = int(data[1]["value"])
+            if len(data) >= 7:
+                result["crypto_week"] = int(data[7]["value"])
+            if len(data) >= 30:
+                result["crypto_month"] = int(data[30]["value"])
+    except Exception as e:
+        print(f"  ⚠️ Crypto F&G err: {e}")
+    return result
+
+
+def fetch_move_pcc():
+    """MOVE Index (^MOVE via yfinance) & Put/Call Ratio (CNN API fallback)"""
+    import yfinance as yf
+    result = {"move_vals": [], "move_dates": [], "move_now": 0, "move_chg": 0,
+              "pcc_vals": [], "pcc_dates": [], "pcc_now": 0, "pcc_chg": 0}
+    try:
+        # MOVE Index — 일봉 1년치 → 월별 마지막값 집계
+        mv = yf.download("^MOVE", period="1y", interval="1d", progress=False, timeout=15)
+        if len(mv) >= 2:
+            cl = mv["Close"].dropna()
+            from collections import OrderedDict as _OD
+            monthly = _OD()
+            for idx in range(len(cl)):
+                key = str(cl.index[idx])[:7]
+                monthly[key] = round(float(cl.iloc[idx]), 1)
+            items = list(monthly.items())[-14:]
+            result["move_dates"] = [k for k, v in items]
+            result["move_vals"] = [v for k, v in items]
+            if len(result["move_vals"]) >= 2:
+                result["move_now"] = result["move_vals"][-1]
+                result["move_chg"] = round(result["move_vals"][-1] - result["move_vals"][-2], 1)
+    except Exception as e:
+        print(f"  ⚠️ MOVE err: {e}")
+
+    # Put/Call Ratio — CNN API에서 최근 14개월치 추출
+    try:
+        r = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+                         headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+                                  "Accept": "application/json"}, timeout=10)
+        if r.status_code == 200 and r.text:
+            d = r.json()
+            pco = d.get("put_call_options", {}).get("data", [])
+            if pco:
+                # 월별 마지막 값만 추출 (최근 14개)
+                from collections import OrderedDict
+                monthly = OrderedDict()
+                for pt in pco:
+                    ts = pt.get("x", 0) / 1000
+                    dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+                    key = dt.strftime("%Y-%m")
+                    monthly[key] = round(pt.get("y", 0), 2)
+                items = list(monthly.items())[-14:]
+                result["pcc_dates"] = [k for k, v in items]
+                result["pcc_vals"] = [v for k, v in items]
+                if len(result["pcc_vals"]) >= 2:
+                    result["pcc_now"] = result["pcc_vals"][-1]
+                    result["pcc_chg"] = round(result["pcc_vals"][-1] - result["pcc_vals"][-2], 2)
+    except Exception as e:
+        print(f"  ⚠️ PCC err: {e}")
+    return result
+
+
+
 SYMS = {"SP500":"^GSPC","NASDAQ":"^IXIC","DOW":"^DJI","RUSSELL":"^RUT",
         "VIX":"^VIX","GOLD":"GC=F","SILVER":"SI=F","OIL":"CL=F","COPPER":"HG=F",
         "DXY":"DX-Y.NYB","BTC":"BTC-USD","ETH":"ETH-USD","SOL":"SOL-USD",
@@ -342,9 +488,11 @@ def fred_js(cpi, core, un, ff, d10, d2):
 # PART C — HTML 템플릿 패치 (브리핑 + 데이터 → 최종 HTML)
 # ═══════════════════════════════════════════
 
-def patch_html(src, mkt, fscript, briefing_html=""):
+def patch_html(src, mkt, fscript, briefing_html="", fg=None, move_pcc=None):
     """템플릿 HTML에서 동적 부분만 re.sub으로 교체 — format() 절대 사용 안함"""
     h = src
+    if fg is None: fg = {}
+    if move_pcc is None: move_pcc = {}
 
     # 날짜
     h = re.sub(r'\d{4}년 \d{2}월 \d{2}일 \([월화수목금토일]\)', TODAY_STR, h)
@@ -384,10 +532,75 @@ def patch_html(src, mkt, fscript, briefing_html=""):
         r'(subsection-label">환율</div>\s*<div class="cards">)[\s\S]*?(</div>\s*<div class="subsection-label"[^>]*>원자재)',
         lambda m: m.group(1) + fx + m.group(2), h, count=1)
 
-    # 공포탐욕 게이지
-    vix_val = mkt.get("VIX",{}).get("price",25)
-    fg = max(5, min(95, int(100 - vix_val * 2.5)))
-    h = re.sub(r"drawGauge\('gauge-cnn',\s*\d+,", f"drawGauge('gauge-cnn', {fg},", h)
+    # ── 공포탐욕 게이지 (실시간) ──
+    cnn_val = fg.get("cnn", 50)
+    cnn_label = fg.get("cnn_label", "Neutral")
+    cnn_prev = fg.get("cnn_prev", cnn_val)
+    cnn_week = fg.get("cnn_week", cnn_val)
+    cnn_month = fg.get("cnn_month", cnn_val)
+    crypto_val = fg.get("crypto", 50)
+    crypto_label = fg.get("crypto_label", "Neutral")
+    crypto_prev = fg.get("crypto_prev", crypto_val)
+    crypto_week = fg.get("crypto_week", crypto_val)
+    crypto_month = fg.get("crypto_month", crypto_val)
+
+    # CNN 게이지 값 + 라벨
+    h = re.sub(r"drawGauge\('gauge-cnn',\s*\d+,\s*'[^']*'\)",
+               f"drawGauge('gauge-cnn', {cnn_val}, '{cnn_label}')", h)
+    # Crypto 게이지 값 + 라벨
+    h = re.sub(r"drawGauge\('gauge-crypto',\s*\d+,\s*'[^']*'\)",
+               f"drawGauge('gauge-crypto', {crypto_val}, '{crypto_label}')", h)
+
+    # CNN 히스토리 (어제/지난주/지난달)
+    h = re.sub(
+        r'(📺 CNN 공포탐욕지수.*?fg-history[^>]*>)\s*<span>어제.*?</span>\s*<span>지난주.*?</span>\s*<span>지난달.*?</span>',
+        lambda m: m.group(1) +
+        f'\n        <span>어제 <strong style="color:#374151">{cnn_prev}</strong></span>'
+        f'\n        <span>지난주 <strong style="color:#374151">{cnn_week}</strong></span>'
+        f'\n        <span>지난달 <strong style="color:#374151">{cnn_month}</strong></span>',
+        h, flags=re.DOTALL)
+
+    # Crypto 히스토리 (어제/지난주/지난달)
+    h = re.sub(
+        r'(₿ 크립토 공포탐욕지수.*?fg-history[^>]*>)\s*<span>어제.*?</span>\s*<span>지난주.*?</span>\s*<span>지난달.*?</span>',
+        lambda m: m.group(1) +
+        f'\n        <span>어제 <strong style="color:#374151">{crypto_prev}</strong></span>'
+        f'\n        <span>지난주 <strong style="color:#374151">{crypto_week}</strong></span>'
+        f'\n        <span>지난달 <strong style="color:#374151">{crypto_month}</strong></span>',
+        h, flags=re.DOTALL)
+
+    # ── MOVE Index & Put/Call Ratio (실시간) ──
+    mv_dates = move_pcc.get("move_dates", [])
+    mv_vals = move_pcc.get("move_vals", [])
+    mv_now = move_pcc.get("move_now", 0)
+    mv_chg = move_pcc.get("move_chg", 0)
+    pcc_dates = move_pcc.get("pcc_dates", [])
+    pcc_vals = move_pcc.get("pcc_vals", [])
+    pcc_now = move_pcc.get("pcc_now", 0)
+    pcc_chg = move_pcc.get("pcc_chg", 0)
+
+    # MOVE 현재값 텍스트
+    if mv_now:
+        mv_arrow = "▲" if mv_chg >= 0 else "▼"
+        h = re.sub(
+            r'(ICE BofAML MOVE Index.*?현재 <strong[^>]*>)[\d.]+</strong>\s*[^|]*\|',
+            f'\\g<1>{mv_now}</strong> &nbsp;{mv_arrow} {mv_chg:+.1f} 전일比 &nbsp;|',
+            h)
+    # Put/Call 현재값 텍스트
+    if pcc_now:
+        pcc_arrow = "▲" if pcc_chg >= 0 else "▼"
+        h = re.sub(
+            r'(현재 <strong[^>]*>)[\d.]+</strong>\s*[^|]*\|\s*1\.0 이상',
+            f'\\g<1>{pcc_now}</strong> &nbsp;{pcc_arrow} {pcc_chg:+.2f} &nbsp;| 1.0 이상',
+            h)
+
+    # MOVE & PCC 차트 데이터 (JS 배열 교체)
+    if mv_dates and mv_vals:
+        mv_d_js = json.dumps(mv_dates)
+        mv_v_js = json.dumps(mv_vals)
+        h = re.sub(r"const xm=\[.*?\];\s*const mv=\[.*?\];\s*const pcc=\[.*?\];",
+                   f"const xm={mv_d_js};\nconst mv={mv_v_js};\nconst pcc={json.dumps(pcc_vals if pcc_vals else [0]*len(mv_vals))};",
+                   h)
 
     # FRED 스크립트 (템플릿 원본 or 이전 생성 결과 모두 매칭)
     h = re.sub(r'<script>\s*// ====== FRED 실시간 API[\s\S]+?loadFredData\(\);\s*</script>',
@@ -432,11 +645,25 @@ def main():
     except Exception as e:
         print(f"  ⚠️ fred err: {e}"); fscript = "// no fred"
 
-    # ④ 템플릿 패치 → docs/index.html (브리핑 + 카드 + 차트)
+    # ④ 실시간 지표: 공포탐욕 / MOVE·Put/Call
+    try:
+        fg_data = fetch_fear_greed()
+        print(f"  😱 공포탐욕 ok — CNN:{fg_data['cnn']} Crypto:{fg_data['crypto']}")
+    except Exception as e:
+        print(f"  ⚠️ 공포탐욕 err: {e}"); fg_data = {}
+
+    try:
+        move_pcc_data = fetch_move_pcc()
+        print(f"  📉 MOVE:{move_pcc_data.get('move_now',0)} PCC:{move_pcc_data.get('pcc_now',0)}")
+    except Exception as e:
+        print(f"  ⚠️ MOVE/PCC err: {e}"); move_pcc_data = {}
+
+    # ⑤ 템플릿 패치 → docs/index.html (브리핑 + 카드 + 차트 + 실시간지표)
     tmpl_path = Path("templates/dashboard.html")
     if tmpl_path.exists():
         src = tmpl_path.read_text(encoding="utf-8")
-        html = patch_html(src, mkt, fscript, briefing_html)
+        html = patch_html(src, mkt, fscript, briefing_html,
+                          fg=fg_data, move_pcc=move_pcc_data)
         out = Path("docs/index.html")
         out.parent.mkdir(exist_ok=True)
         out.write_text(html, encoding="utf-8")

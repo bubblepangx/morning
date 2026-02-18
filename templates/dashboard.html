@@ -54,20 +54,26 @@
   .new-badge{display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px;letter-spacing:0.5px;vertical-align:middle}
 
   /* 브리핑 마크다운 스타일 */
-  #briefing-content{font-size:0.92rem;line-height:1.95;color:#374151}
-  #briefing-content h1{font-size:1.25rem;font-weight:700;color:#111;margin:1.6rem 0 .6rem;padding-bottom:.4rem;border-bottom:2px solid #e8eaed}
-  #briefing-content h2{font-size:1.05rem;font-weight:700;color:#1d4ed8;margin:1.3rem 0 .5rem}
-  #briefing-content h3{font-size:0.95rem;font-weight:600;color:#374151;margin:1rem 0 .4rem}
-  #briefing-content p{margin-bottom:.7rem}
-  #briefing-content strong{color:#111}
-  #briefing-content em{color:#6b7280}
+  #briefing-block{background:linear-gradient(135deg,#fdfcfa 0%,#faf6f0 100%);border:1px solid #ece5d8;box-shadow:0 2px 12px rgba(139,109,71,0.05)}
+  #briefing-block .block-title{color:#8b6d47;letter-spacing:2px}
+  #briefing-block .block-title::after{background:#e0d5c3}
+  #briefing-block .block-title .src{color:#a67c52}
+
+  #briefing-content{font-size:0.92rem;line-height:1.95;color:#4a3f35}
+  #briefing-content h1{font-family:'DM Serif Display',serif;font-size:1.3rem;font-weight:400;color:#5c4a32;margin:1.8rem 0 .7rem;padding-bottom:.5rem;border-bottom:2px solid #d4c4a8;letter-spacing:-0.3px}
+  #briefing-content h2{font-size:1.05rem;font-weight:700;color:#6b5234;margin:1.4rem 0 .5rem}
+  #briefing-content h3{font-size:0.95rem;font-weight:600;color:#7a6548;margin:1rem 0 .4rem}
+  #briefing-content p{margin-bottom:.8rem;color:#4a3f35}
+  #briefing-content strong{color:#3d2e1c}
+  #briefing-content em{color:#8b7d6b}
   #briefing-content ul,#briefing-content ol{padding-left:1.3rem;margin-bottom:.7rem}
-  #briefing-content li{margin-bottom:.3rem;font-size:0.88rem}
-  #briefing-content hr{border:none;border-top:1px solid #e8eaed;margin:1.4rem 0}
-  #briefing-content table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:0.84rem}
-  #briefing-content th{background:#f0f4ff;color:#1d4ed8;padding:.5rem .7rem;text-align:left;border-bottom:2px solid #dbeafe;font-weight:600;white-space:nowrap}
-  #briefing-content td{padding:.45rem .7rem;border-bottom:1px solid #f3f4f6}
-  #briefing-content tr:hover td{background:#f8fafc}
+  #briefing-content li{margin-bottom:.4rem;font-size:0.88rem;color:#4a3f35}
+  #briefing-content hr{border:none;border-top:1px solid #d4c4a8;margin:1.6rem 0}
+  #briefing-content table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:0.84rem;border-radius:8px;overflow:hidden}
+  #briefing-content th{background:#efe8da;color:#6b5234;padding:.55rem .7rem;text-align:left;border-bottom:2px solid #d4c4a8;font-weight:600;white-space:nowrap}
+  #briefing-content td{padding:.5rem .7rem;border-bottom:1px solid #ebe4d6;color:#4a3f35}
+  #briefing-content tr:hover td{background:#f7f2ea}
+  #briefing-content blockquote{margin:1.2rem 0;padding:14px 20px;background:linear-gradient(135deg,#f5efe5,#ede4d4);border-left:4px solid #a67c52;border-radius:0 10px 10px 0;color:#5c4a32;font-size:0.9rem;line-height:1.8}
 
   /* 공포탐욕 게이지 */
   .fg-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -76,12 +82,6 @@
   .fg-history{font-size:0.75rem;color:#9ca3af;margin-top:8px;display:flex;justify-content:center;gap:16px}
 
   /* Truflation */
-  .tru-box{background:linear-gradient(135deg,#1e3a5f,#0d2137);border-radius:12px;padding:20px 24px;color:#fff;display:flex;align-items:flex-start;gap:24px;margin-bottom:16px;flex-wrap:wrap}
-  .tru-left .tru-tag{font-size:0.7rem;color:#93c5fd;font-weight:600;letter-spacing:0.5px;margin-bottom:6px}
-  .tru-left .tru-val{font-size:2.6rem;font-weight:700;line-height:1;letter-spacing:-1px}
-  .tru-left .tru-chg{font-size:0.8rem;background:rgba(255,255,255,0.12);border-radius:20px;padding:3px 10px;margin-top:8px;display:inline-block}
-  .tru-left .tru-bls{font-size:0.75rem;color:#93c5fd;margin-top:10px}
-  .tru-right{flex:1;min-width:180px;font-size:0.78rem;color:#93c5fd;line-height:1.9}
 
   /* AI 로딩 */
   .ai-loading{display:flex;align-items:center;gap:10px;padding:16px;background:#f8f9fb;border-radius:8px;color:#6b7280;font-size:0.85rem;margin-bottom:8px}
@@ -237,37 +237,6 @@
   <div class="chart-box">
     <div class="chart-label">국채 수익률 %</div>
     <div id="fred3" style="width:100%;height:260px"></div>
-  </div>
-</div>
-
-<!-- 9-1. Truflation -->
-<div class="block">
-  <div class="block-title">Truflation 실시간 인플레이션 <span class="src2">TruCPI-US</span> <span class="new-badge">NEW</span></div>
-
-  <div class="tru-box">
-    <div class="tru-left">
-      <div class="tru-tag">🇺🇸 TruCPI-US &nbsp;·&nbsp; Year on Year &nbsp;·&nbsp; 일일 업데이트</div>
-      <div class="tru-val">0.74%</div>
-      <div class="tru-chg">▼ &minus;0.04 전일比</div>
-      <div class="tru-bls">BLS 공식 발표: 2.70% &nbsp;|&nbsp; YTD Low 0.68% · High 1.95%</div>
-    </div>
-    <div class="tru-right">
-      <div>30개 이상 실시간 데이터 소스 기반 물가 측정.</div>
-      <div>공식 CPI보다 선행 지표 역할.</div>
-      <div style="margin-top:8px;color:#60a5fa">📌 공식 CPI(2.70%) 대비 <strong style="color:#fff">약 1.96%p 낮음</strong></div>
-      <div style="color:#60a5fa">→ 실질 물가 압력 빠르게 하락 중 시사</div>
-    </div>
-  </div>
-
-  <div class="chart-label" style="margin-top:0">Truflation YoY % — 최근 1년 일별 추이</div>
-  <div id="truflation-chart" style="width:100%;height:260px"></div>
-
-  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <span style="font-size:0.72rem;background:#dbeafe;color:#1e40af;padding:3px 10px;border-radius:20px">Goods</span>
-    <span style="font-size:0.72rem;background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px">Core</span>
-    <span style="font-size:0.72rem;background:#fce7f3;color:#9d174d;padding:3px 10px;border-radius:20px">Services</span>
-    <span style="font-size:0.72rem;background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:20px">PCE</span>
-    <span style="font-size:0.72rem;color:#9ca3af;margin-left:4px">성분별 비교 → truflation.com</span>
   </div>
 </div>
 
@@ -558,34 +527,6 @@ async function loadFredData() {
 loadFredData();
 </script>
 
-<script>
-// ====== Truflation 차트 ======
-(function(){
-  const days=[],vals=[];
-  let v=1.85;
-  const s=new Date('2025-03-01');
-  for(let i=0;i<350;i++){
-    const d=new Date(s); d.setDate(s.getDate()+i);
-    days.push(d.toISOString().split('T')[0]);
-    v+=(Math.random()-0.5)*0.06;
-    if(i>270) v-=0.016;
-    v=Math.max(0.5,Math.min(3.0,v));
-    vals.push(+v.toFixed(2));
-  }
-  vals[vals.length-1]=0.74;
-  Plotly.newPlot('truflation-chart',[{
-    x:days,y:vals,name:'TruCPI-US YoY%',type:'scatter',mode:'lines',
-    line:{color:'#2563eb',width:2},fill:'tozeroy',fillcolor:'rgba(37,99,235,0.08)'
-  }],{
-    margin:{t:10,b:40,l:50,r:10},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
-    xaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},
-    yaxis:{gridcolor:'#f1f5f9',tickfont:{size:10},ticksuffix:'%'},
-    legend:{orientation:'h',y:-0.25,font:{size:11}},
-    shapes:[{type:'line',x0:days[0],x1:days[days.length-1],y0:2.0,y1:2.0,line:{color:'#ef4444',width:1,dash:'dot'}}],
-    annotations:[{x:days[days.length-50],y:2.05,text:'Fed 목표 2%',showarrow:false,font:{size:10,color:'#ef4444'}}]
-  },{responsive:true,displayModeBar:false});
-})();
-</script>
 
 <script>
 // ====== MOVE & PCC 차트 ======
