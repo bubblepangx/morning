@@ -2,7 +2,7 @@ name: 🗞 Market Sentinel — Daily Briefing
 
 on:
   schedule:
-    - cron: '50 21 * * 0-4'
+    - cron: '50 21 * * 0-5'
   workflow_dispatch:
     inputs:
       note:
