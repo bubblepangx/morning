@@ -81,8 +81,6 @@
   .fg-title{font-size:0.78rem;color:#6b7280;font-weight:600;margin-bottom:8px}
   .fg-history{font-size:0.75rem;color:#9ca3af;margin-top:8px;display:flex;justify-content:center;gap:16px}
 
-  /* Truflation */
-
   /* AI 로딩 */
   .ai-loading{display:flex;align-items:center;gap:10px;padding:16px;background:#f8f9fb;border-radius:8px;color:#6b7280;font-size:0.85rem;margin-bottom:8px}
   .spinner{width:16px;height:16px;border:2px solid #e5e7eb;border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
@@ -101,7 +99,7 @@
 
 <div class="site-header">
   <h1>Daily US Market Dashboard</h1>
-  <div class="meta"><span>2026년 02월 18일 (수)</span> &nbsp;|&nbsp; 자동 생성 &nbsp;|&nbsp; 07:00 KST</div>
+  <div class="meta"><span>2026년 02월 20일 (금)</span> &nbsp;|&nbsp; 자동 생성 &nbsp;|&nbsp; 07:00 KST</div>
 </div>
 
 <div class="wrap">
@@ -109,148 +107,13 @@
 <!-- 브리핑 섹션 (Claude API + web_search) -->
 <div class="block" id="briefing-block">
   <div class="block-title">Market Sentinel 모닝 브리핑 <span class="src">Claude AI · web search</span></div>
-  <div id="briefing-content"><h1>🇺🇸 PART 1 — 미국 시장</h1>
-<h2>오늘의 시장</h2>
-<table>
-<thead>
-<tr>
-<th>지수</th>
-<th>종가</th>
-<th>등락</th>
-<th>등락률</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>S&amp;P 500</td>
-<td>6,115.07</td>
-<td>+22.09</td>
-<td>+0.36%</td>
-</tr>
-<tr>
-<td>나스닥 종합</td>
-<td>20,041.26</td>
-<td>+98.33</td>
-<td>+0.49%</td>
-</tr>
-<tr>
-<td>다우존스 (DJIA)</td>
-<td>44,556.34</td>
-<td>+167.01</td>
-<td>+0.38%</td>
-</tr>
-<tr>
-<td>러셀 2000</td>
-<td>2,289.37</td>
-<td>+18.42</td>
-<td>+0.81%</td>
-</tr>
-</tbody>
-</table>
-<p><strong>선물 현황 (07:00 KST):</strong> S&amp;P500 선물 6,128 (+0.21%) / Nasdaq100 선물 21,845 (+0.18%)</p>
-<p>트럼프 대통령이 전날 서명한 상호관세 행정명령은 시장이 우려했던 '즉시 부과'가 아닌 '조사 후 결정' 방식으로 확인되면서, 월가는 한숨을 돌렸다. S&amp;P 500은 장 초반 0.5% 이상 급등하며 6,115.07로 사상 최고치를 경신했고, 나스닥 종합도 2만 선을 재탈환하며 +0.49%로 마감했다. 러셀 2000이 +0.81%로 대형주 대비 강한 상승을 보인 것은 관세 리스크 완화가 내수 중심 소형주에 더 긍정적으로 작용했음을 시사한다. 전체적으로 "최악의 시나리오가 아니다"라는 안도 랠리 성격이 짙었으며, 거래량은 20일 평균 대비 8% 높았다.</p>
-<p>S&amp;P 500 11개 섹터 중 금융이 +1.2%로 가장 강했다. JP모건과 골드만삭스가 각각 +1.5%, +1.8% 상승하며 트레이딩 부문 호조 기대를 반영했고, 에너지도 엑슨모빌(+2.4%)에 힘입어 +0.9% 올랐다. 반면 헬스케어는 유나이티드헬스(-3.1%)의 메디케어 수가 규제 우려로 -0.3% 빠졌으며, 유틸리티도 금리 상승 부담에 -0.2% 약세를 보였다. 기술 섹터는 +0.5%로 시장 평균 수준이었으나, 내부적으로는 AI 수혜주와 비수혜주 간 극명한 양극화가 나타났다.</p>
-<p>VIX는 전일 대비 3.2% 하락한 15.82에 안착하며 시장의 공포가 상당 부분 해소되었음을 보여준다. CNN 공포탐욕지수는 68로 '탐욕' 구간에 진입했는데, 한 달 전 52(중립)에서 꾸준히 상승한 흐름이다. 옵션 시장에서도 풋/콜 비율이 0.78로 낮아지면서 하방 헤지 수요가 줄고 있으며, 이는 기관투자자들이 관세 리스크를 단기 노이즈로 판단하고 있음을 시사한다. 다만 VIX 15선이 뚫릴 경우 과도한 낙관으로의 쏠림을 경계해야 한다.</p>
-<p>금 현물은 온스당 $2,891로 +0.42% 상승하며 사상 최고치($2,903)에 바짝 다가섰다. 중앙은행들의 금 매입이 12개월 연속 이어지고 있으며, 지정학적 불확실성이 안전자산 수요를 지속적으로 떠받치고 있다. 달러 인덱스(DXY)는 106.83으로 -0.15% 약세를 보였는데, 관세 행정명령이 예상보다 온건하면서 '달러 강세' 내러티브가 힘을 잃었다. WTI 유가는 배럴당 $76.84(+0.33%)로 소폭 올랐으며, OPEC+의 감산 기조 유지와 미국 원유 재고 감소가 지지 요인으로 작용했다.</p>
-<p>미 국채 10년물 수익률은 4.52%(+2bp)로 소폭 상승한 반면, 2년물은 4.27%(-1bp)로 하락하면서 10-2년 스프레드가 +25bp로 확대되어 정상적인 수익률 곡선 기울기를 유지했다. CME 페드워치 기준 3월 FOMC 동결 확률은 95.2%로 사실상 확정적이며, 시장이 가격에 반영한 첫 인하 시점은 6월(42%)로 수렴하고 있다. 보스틱 애틀랜타 연은 총재는 "인플레이션이 2% 목표에 확실히 수렴하기 전까지 서두를 이유가 없다"고 재차 강조했으며, 이는 연준의 'higher for longer' 기조가 당분간 유효함을 확인시켜 준다.</p>
-<p>팔란티어(PLTR)는 +8.3% 급등한 $89.54에 마감하며 이날 최고의 성적을 기록했다. Q4 매출 $828M으로 시장 예상을 15% 상회했고, 미 국방부 AI 플랫폼 계약 확대가 성장 가시성을 높였다. SMCI(+5.1%, $892)는 AI 서버 수주 파이프라인 확대 소식에 데이터센터 투자 사이클 수혜주로 재부각됐다. 반면 엔비디아(NVDA)는 -2.1%로 하락했는데, 2월 26일 실적 발표를 앞두고 차익 실현 매물이 출회된 것으로, 블랙웰 GPU 수요가 실적으로 확인되기 전까지 관망 심리가 우세하다. 애플(AAPL, -2.3%)은 중국 아이폰 판매 부진 보도가 악재로 작용했고, Cloudflare(NET)는 Q1 가이던스가 시장 기대를 하회하면서 -8.0% 급락하며 고성장 SaaS 밸류에이션 부담을 환기시켰다.</p>
-<hr />
-<h2>섹터 성과 — 올라간 곳 vs 내려간 곳</h2>
-<p><strong>▲ 상승 섹터</strong></p>
-<ul>
-<li>금융(Financials) — +1.2%. 관세 행정명령이 '즉시 부과'가 아닌 '조사 후 결정' 방식으로 확인되면서 경기 둔화 우려가 후퇴했고, JP모건·골드만삭스의 트레이딩 수익 호조 기대가 섹터 전반을 끌어올렸다.</li>
-<li>에너지(Energy) — +0.9%. 이란·베네수엘라 공급 리스크 프리미엄이 유가를 지지하는 가운데, 엑슨모빌의 Q4 실적 기대감이 섹터 상승을 견인했다. YTD 기준 S&amp;P 500 내 상위 3위권을 유지 중이다.</li>
-<li>산업재(Industrials) — +0.7%. 인프라 투자법안의 실질 집행이 가속화되면서 캐터필러·디어 등 대형 산업주가 수혜를 입었고, ISM 제조업지수 반등 기대도 긍정적으로 작용했다.</li>
-</ul>
-<p><strong>▼ 하락 섹터</strong></p>
-<ul>
-<li>헬스케어(Health Care) — -0.3%. 유나이티드헬스(-3.1%)가 메디케어 수가 규제 강화 우려에 급락하면서 섹터 전체를 끌어내렸다. 바이오텍 소형주도 FDA 승인 지연 뉴스에 약세를 보였다.</li>
-<li>유틸리티(Utilities) — -0.2%. 10년물 국채 수익률이 4.52%로 소폭 상승하면서 배당 매력이 상대적으로 약화됐고, 금리 민감 섹터 특성상 자금 이탈이 나타났다.</li>
-</ul>
-<hr />
-<h2>급등·급락 Top 5</h2>
-<p><strong>▲ 급등</strong><br />
-팔란티어(PLTR) +8.3% — Q4 매출 $828M으로 컨센서스 15% 상회, 국방부 AI 플랫폼 계약 확대가 성장 가시성을 높였다.<br />
-SMCI +5.1% — AI 서버 수주 파이프라인 확대 소식에 데이터센터 투자 사이클 수혜주로 재부각.<br />
-코인베이스(COIN) +4.2% — SAB 121 규정 폐지 수혜 기대와 비트코인 $97K 돌파가 동반 호재로 작용.<br />
-AMD +3.1% — MI350 GPU 양산 일정 공식 발표, AI 칩 경쟁력 재평가 흐름.<br />
-엑슨모빌(XOM) +2.4% — WTI 유가 반등에 Q4 실적 기대감과 자사주 매입 확대가 더해졌다.</p>
-<p><strong>▼ 급락</strong><br />
-Cloudflare(NET) -8.0% — Q1 가이던스가 컨센서스를 하회하면서 고성장 SaaS 밸류에이션 부담을 환기시켰다.<br />
-스냅(SNAP) -5.2% — 광고 수익 둔화에 틱톡 경쟁 심화로 MAU 성장이 정체 구간에 진입.<br />
-유나이티드헬스(UNH) -3.1% — 메디케어 수가 규제 강화 우려에 법무부 조사 보도까지 겹쳤다.<br />
-브로드컴(AVGO) -1.8% — AI 매출 성장 둔화 우려와 밸류에이션 고평가 인식이 확산.<br />
-화이자(PFE) -1.5% — 코로나 백신 매출 급감이 지속되는 가운데 비용 구조조정 효과도 미흡.</p>
-<hr />
-<p>오전 10시 중국 1월 제조업 PMI 발표가 예정되어 있으며, 48 하회 시 소재·화학 섹터에 매도 압력이 가해질 수 있다. 오후 10시 30분에는 미국 1월 소매판매가 발표되는데, 소비 둔화 신호가 나올 경우 경기 침체 우려가 재점화될 가능성이 있다. 내일은 PPI 발표와 엔비디아 GTC 프리뷰가 겹치면서 기술주 변동성이 확대될 전망이다. 전반적으로 관세 안도감과 선물 강세에 힘입어 상승 출발이 예상되나, 중국 PMI가 변수다.</p>
-<blockquote>
-<p><strong>핵심 한 줄:</strong> 관세 행정명령이 "조사 후 결정"으로 확인되면서 안도 랠리가 촉발됐고, S&amp;P 500은 사상 최고치를 경신했으나 중국 PMI와 소매판매 결과에 따라 변동성 재확대 가능성은 열려 있다.</p>
-</blockquote>
-<hr />
-<h1>🇰🇷 PART 2 — Overnight US → Korea Impact</h1>
-<p><strong>[High]</strong> 팔란티어 Q4 서프라이즈(+72% YoY)로 AI 인프라 투자 사이클 재확인 — 실적·밸류에이션 | 수혜: SK하이닉스·삼성전자(HBM), 한미반도체 | 단기<br />
-<strong>[High]</strong> 상호관세 행정명령이 '조사 후 결정'으로 확인, 즉시 부과 아님 — 심리·환율 | 수혜: 수출주 전반(현대차·기아·조선), 원/달러 안정 | 중기<br />
-<strong>[Medium]</strong> 10년물 4.52%(+2bp), 달러인덱스 106.83(-0.15%) 약세 전환 — 환율 | 수혜: 외국인 순매수 유입 기대, 피해: 은행·보험(금리 민감) | 단기<br />
-<strong>[Medium]</strong> 엔비디아 -2.1% 차익실현, 2/26 실적 앞두고 관망 — 밸류에이션 | 피해: AI 관련 중소형주 동반 눌림, 수혜: 실적 확인 후 반도체 반등 여지 | 단기<br />
-<strong>[Medium]</strong> 러셀 2000 +0.81% 소형주 강세 → 글로벌 리스크온 신호 — 심리 | 수혜: KOSDAQ 성장주, 2차전지 단기 트레이딩 | 단기<br />
-<strong>[Medium]</strong> WTI $76.84 보합, 금 $2,891 사상 최고 근접 — 실적 | 수혜: 에코프로·포스코퓨처(원자재), 피해: 항공·해운(유가 부담) | 중기<br />
-<strong>[Low]</strong> Cloudflare -8.0% 가이던스 하회 → 고성장 SaaS 밸류에이션 경고 — 밸류에이션 | 피해: 국내 SaaS·클라우드(카카오클라우드 등) 심리 위축 | 단기</p>
-<hr />
-<h1>🇨🇳 PART 3 — China Overnight → US/Korea Impact</h1>
-<p><strong>[High]</strong> PBOC 지급준비율 0.5%p 추가 인하 시사 (판공청 브리핑) — 유동성·환율 | KR: 소재·화학(중국 수요 회복 기대), US: 원자재(구리·철광석) | 구조적<br />
-<strong>[High]</strong> DeepSeek R2 모델 벤치마크 공개, GPT-4o 대비 95% 성능·비용 1/10 — 공급망·수요 | KR: SK하이닉스·삼성전자(AI 추론칩 수요), US: NVDA·AMD(경쟁 심화) | 구조적<br />
-<strong>[Medium]</strong> 알리바바 클라우드 AI 매출 YoY +86% 발표 (Q4 실적) — 수요 | KR: 반도체 장비(한미반도체), US: 클라우드 인프라(AMZN·MSFT) | 단기<br />
-<strong>[Medium]</strong> 1월 제조업 PMI 10:00 KST 발표 예정, 시장 컨센서스 49.2 — 수요·심리 | KR: 소재·화학·철강(48 하회 시 매도 압력), US: 원자재 ETF | 단기<br />
-<strong>[Medium]</strong> 위안화 역외환율 7.244(+0.05%) 안정, PBOC 기준환율 시장 예상 범위 내 — 환율 | KR: 원/달러 안정 기여, US: DXY 하방 지지 | 단기<br />
-<strong>[Low]</strong> 바이두 자율주행 택시 100개 도시 확장 계획 발표 — 수요 | KR: 자율주행 부품(현대모비스), US: 자율주행(GOOGL·GM) | 구조적</p>
-<hr />
-<h1>🇯🇵 PART 4 — Japan Overnight → US/Korea Impact</h1>
-<p><strong>[High]</strong> 우에다 BoJ 총재 "추가 금리인상 서두르지 않겠다" 재확인 — 환율·경쟁 | KR: 현대차·기아(엔저로 일본차 가격경쟁력 강화), US: 엔캐리 트레이드 지속 | 구조적<br />
-<strong>[High]</strong> 엔/달러 154.82엔, 엔화 약세 가속 → 원/엔 환율 하락 압력 — 환율 | KR: 수출주 전반(가격경쟁력 약화), 철강·조선(일본과 직접 경쟁) | 구조적<br />
-<strong>[Medium]</strong> 도요타 +1.8%, 북미 판매 호조 + 엔저 수혜 실적 상향 — 경쟁 | KR: 현대차·기아(미국 시장 점유율 경쟁 심화) | 단기<br />
-<strong>[Medium]</strong> 소프트뱅크 +2.3%, AI 인프라 투자 $100B 계획 재확인 — 공급망·수요 | KR: SK하이닉스(ARM 연계 AI칩 수요), US: NVDA·ARM | 구조적<br />
-<strong>[Low]</strong> 닛케이225 39,565(+0.72%), 아시아 리스크온 분위기 확산 — 심리 | KR: KOSPI 외국인 순매수 기대, US: 아시아 ETF(EWJ·EWY) | 단기</p>
-<hr />
-<h2>📅 오늘의 글로벌 주요 일정</h2>
-<table>
-<thead>
-<tr>
-<th>시간(KST)</th>
-<th>이벤트</th>
-<th>중요도</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>10:00</td>
-<td>중국 1월 제조업 PMI</td>
-<td>🔴 상</td>
-</tr>
-<tr>
-<td>15:00</td>
-<td>한국 1월 수출입 동향</td>
-<td>🟡 중</td>
-</tr>
-<tr>
-<td>22:30</td>
-<td>미국 1월 소매판매</td>
-<td>🔴 상</td>
-</tr>
-<tr>
-<td>24:00</td>
-<td>미국 12월 기업재고</td>
-<td>🟢 하</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2><em>본 브리핑은 정보 제공 목적이며 투자 권유가 아닙니다.</em></h2></div>
+  <div id="briefing-content"><p><strong>[Low]</strong> Etsy→Depop eBay 매각(12억</p></div>
 </div>
 
 <!-- 3. 주요 지수 카드 -->
 <div class="block">
   <div class="block-title">주요 지수 <span class="src2">yfinance</span></div>
-  <div class="cards"><div class="card"><div class="card-label">S&P 500</div><div class="card-value">6,115.07</div><div class="card-change" style="color:#e53e3e">▲ 0.36%</div></div><div class="card"><div class="card-label">NASDAQ</div><div class="card-value">20,041.26</div><div class="card-change" style="color:#e53e3e">▲ 0.49%</div></div><div class="card"><div class="card-label">Dow Jones</div><div class="card-value">44,556.34</div><div class="card-change" style="color:#e53e3e">▲ 0.38%</div></div><div class="card"><div class="card-label">Russell 2000</div><div class="card-value">2,289.37</div><div class="card-change" style="color:#e53e3e">▲ 0.81%</div></div><div class="card"><div class="card-label">VIX</div><div class="card-value">15.82</div><div class="card-change" style="color:#3182ce">▼ 3.21%</div></div></div>
+  <div class="cards"><div class="card"><div class="card-label">S&P 500</div><div class="card-value">6,865.92</div><div class="card-change" style="color:#3182ce">▼ 0.22%</div></div><div class="card"><div class="card-label">NASDAQ</div><div class="card-value">22,712.22</div><div class="card-change" style="color:#3182ce">▼ 0.18%</div></div><div class="card"><div class="card-label">Dow Jones</div><div class="card-value">49,493.20</div><div class="card-change" style="color:#3182ce">▼ 0.34%</div></div><div class="card"><div class="card-label">Russell 2000</div><div class="card-value">2,651.63</div><div class="card-change" style="color:#3182ce">▼ 0.26%</div></div><div class="card"><div class="card-label">VIX</div><div class="card-value">20.16</div><div class="card-change" style="color:#e53e3e">▲ 2.75%</div></div></div>
 </div>
 
 <!-- 4. 지수 캔들차트 -->
@@ -282,8 +145,8 @@ Cloudflare(NET) -8.0% — Q1 가이던스가 컨센서스를 하회하면서 고
       <div class="fg-title">📺 CNN 공포탐욕지수 (주식시장)</div>
       <canvas id="gauge-cnn" width="220" height="135" style="max-width:100%"></canvas>
       <div class="fg-history">
-        <span>어제 <strong style="color:#374151">37</strong></span>
-        <span>지난주 <strong style="color:#374151">48</strong></span>
+        <span>어제 <strong style="color:#374151">40</strong></span>
+        <span>지난주 <strong style="color:#374151">35</strong></span>
         <span>지난달 <strong style="color:#374151">55</strong></span>
       </div>
     </div>
@@ -291,9 +154,9 @@ Cloudflare(NET) -8.0% — Q1 가이던스가 컨센서스를 하회하면서 고
       <div class="fg-title">₿ 크립토 공포탐욕지수</div>
       <canvas id="gauge-crypto" width="220" height="135" style="max-width:100%"></canvas>
       <div class="fg-history">
-        <span>어제 <strong style="color:#374151">10</strong></span>
-        <span>지난주 <strong style="color:#374151">11</strong></span>
-        <span>지난달 <strong style="color:#374151">44</strong></span>
+        <span>어제 <strong style="color:#374151">8</strong></span>
+        <span>지난주 <strong style="color:#374151">5</strong></span>
+        <span>지난달 <strong style="color:#374151">32</strong></span>
       </div>
     </div>
   </div>
@@ -304,7 +167,7 @@ Cloudflare(NET) -8.0% — Q1 가이던스가 컨센서스를 하회하면서 고
   <div class="block-title">변동성 지표 <span class="src2">CBOE</span> <span class="new-badge">NEW</span></div>
   <div class="chart-label" style="margin-top:0">MOVE Index — 채권 변동성 지수</div>
   <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">
-    ICE BofAML MOVE Index &nbsp;|&nbsp; 현재 <strong style="color:#374151">68.8</strong> &nbsp;▲ +9.6 전일比 &nbsp;|&nbsp; 100 이상 = 고변동성 구간
+    ICE BofAML MOVE Index &nbsp;|&nbsp; 현재 <strong style="color:#374151">92.4</strong> &nbsp;▲ +1.8 전일比 &nbsp;|&nbsp; 100 이상 = 고변동성 구간
   </div>
   <div id="chart-move" style="width:100%;height:220px"></div>
 
@@ -319,10 +182,10 @@ Cloudflare(NET) -8.0% — Q1 가이던스가 컨센서스를 하회하면서 고
 <div class="block">
   <div class="block-title">환율 &amp; 원자재 <span class="src2">yfinance · TradingView</span></div>
   <div class="subsection-label">환율</div>
-  <div class="cards"><div class="card"><div class="card-label">달러인덱스</div><div class="card-value">106.83</div><div class="card-change" style="color:#3182ce">▼ 0.15%</div></div><div class="card"><div class="card-label">원/달러</div><div class="card-value">1,443.20</div><div class="card-change" style="color:#3182ce">▼ 0.31%</div></div><div class="card"><div class="card-label">엔/달러</div><div class="card-value">154.82</div><div class="card-change" style="color:#e53e3e">▲ 0.08%</div></div><div class="card"><div class="card-label">위안/달러</div><div class="card-value">7.244</div><div class="card-change" style="color:#e53e3e">▲ 0.05%</div></div></div>
+  <div class="cards"><div class="card"><div class="card-label">달러인덱스</div><div class="card-value">97.87</div><div class="card-change" style="color:#e53e3e">▲ 0.17%</div></div><div class="card"><div class="card-label">원/달러</div><div class="card-value">1,448.08</div><div class="card-change" style="color:#e53e3e">▲ 0.56%</div></div><div class="card"><div class="card-label">엔/달러</div><div class="card-value">155.12</div><div class="card-change" style="color:#e53e3e">▲ 1.29%</div></div><div class="card"><div class="card-label">위안/달러</div><div class="card-value">6.907</div><div class="card-change" style="color:#3182ce">▼ 0.01%</div></div></div>
 
   <div class="subsection-label" style="margin-top:22px">원자재 — 가격 스냅샷</div>
-  <div class="cards"><div class="card"><div class="card-label">금 (XAU/USD)</div><div class="card-value">$2,891</div><div class="card-change" style="color:#e53e3e">▲ 0.42%</div></div><div class="card"><div class="card-label">은 (XAG/USD)</div><div class="card-value">$32.14</div><div class="card-change" style="color:#3182ce">▼ 0.18%</div></div><div class="card"><div class="card-label">WTI 원유</div><div class="card-value">$76.84</div><div class="card-change" style="color:#e53e3e">▲ 0.33%</div></div><div class="card"><div class="card-label">구리</div><div class="card-value">$4.520</div><div class="card-change" style="color:#e53e3e">▲ 0.22%</div></div></div>
+  <div class="cards"><div class="card"><div class="card-label">금 (XAU/USD)</div><div class="card-value">$5,024</div><div class="card-change" style="color:#e53e3e">▲ 0.74%</div></div><div class="card"><div class="card-label">은 (XAG/USD)</div><div class="card-value">$78.11</div><div class="card-change" style="color:#e53e3e">▲ 0.77%</div></div><div class="card"><div class="card-label">WTI 원유</div><div class="card-value">$65.91</div><div class="card-change" style="color:#e53e3e">▲ 1.10%</div></div><div class="card"><div class="card-label">구리</div><div class="card-value">$5.732</div><div class="card-change" style="color:#3182ce">▼ 1.07%</div></div></div>
 
   <div class="subsection-label" style="margin-top:22px">원자재 — TradingView 차트</div>
   <div class="chart-label" style="margin-top:0">금 — TVC:GOLD (XAU/USD)</div>
@@ -513,16 +376,16 @@ window.addEventListener('load', function() {
 const fredCfg={margin:{t:10,b:40,l:50,r:10},legend:{orientation:'h',y:-0.25,font:{size:11}},paper_bgcolor:'transparent',plot_bgcolor:'transparent',xaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},yaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}}};
 const fredOpt={responsive:true,displayModeBar:false};
 Plotly.newPlot('fred1',[
-  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[3.1, 3.5, 3.3, 2.9, 2.4, 2.7, 3.0, 2.8],name:'CPI YoY%',type:'scatter',mode:'lines',line:{color:'#2563eb',width:2}},
-  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[3.9, 3.8, 3.4, 3.2, 3.3, 3.3, 3.2, 3.1],name:'Core CPI YoY%',type:'scatter',mode:'lines',line:{color:'#dc2626',width:2}}
-],{...fredCfg,yaxis:{...fredCfg.yaxis,ticksuffix:'%'},shapes:[{type:'line',x0:'2024-01',x1:'2025-02',y0:2,y1:2,line:{color:'#9ca3af',width:1,dash:'dot'}}]},fredOpt);
+  {x:["2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01", "2025-07-01", "2025-08-01", "2025-09-01", "2025-11-01", "2025-12-01", "2026-01-01"],y:[6.33, 5.96, 4.92, 4.95, 4.13, 3.07, 3.29, 3.72, 3.69, 3.25, 3.13, 3.32, 3.09, 3.16, 3.49, 3.36, 3.24, 2.97, 2.94, 2.61, 2.43, 2.58, 2.72, 2.87, 2.99, 2.8, 2.38, 2.33, 2.38, 2.68, 2.74, 2.94, 3.02, 2.7, 2.65, 2.39],name:'CPI YoY%',type:'scatter',mode:'lines',line:{color:'#2563eb',width:2}},
+  {x:["2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01", "2025-07-01", "2025-08-01", "2025-09-01", "2025-11-01", "2025-12-01", "2026-01-01"],y:[5.54, 5.5, 5.57, 5.51, 5.34, 4.85, 4.7, 4.4, 4.13, 4.03, 4.02, 3.92, 3.86, 3.76, 3.82, 3.63, 3.39, 3.27, 3.23, 3.29, 3.28, 3.3, 3.29, 3.21, 3.28, 3.14, 2.81, 2.78, 2.77, 2.91, 3.05, 3.11, 3.02, 2.6, 2.65, 2.51],name:'Core CPI YoY%',type:'scatter',mode:'lines',line:{color:'#dc2626',width:2}}
+],{...fredCfg,yaxis:{...fredCfg.yaxis,ticksuffix:'%'},shapes:[{type:'line',x0:'2023-01-01',x1:'2026-01-01',y0:2,y1:2,line:{color:'#9ca3af',width:1,dash:'dot'}}]},fredOpt);
 Plotly.newPlot('fred2',[
-  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[3.7, 3.8, 4.0, 4.3, 4.1, 4.2, 4.0, 4.0],name:'실업률',type:'scatter',mode:'lines',line:{color:'#7c3aed',width:2}},
-  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[5.33, 5.33, 5.33, 5.33, 5.0, 4.58, 4.33, 4.33],name:'Fed Funds',type:'scatter',mode:'lines',line:{color:'#d97706',width:2}}
+  {x:["2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01", "2025-07-01", "2025-08-01", "2025-09-01", "2025-11-01", "2025-12-01", "2026-01-01"],y:[3.6, 3.5, 3.4, 3.6, 3.6, 3.5, 3.7, 3.7, 3.9, 3.7, 3.8, 3.7, 3.9, 3.9, 3.9, 3.9, 4.1, 4.2, 4.2, 4.1, 4.1, 4.2, 4.1, 4.0, 4.2, 4.2, 4.2, 4.3, 4.1, 4.3, 4.3, 4.4, 4.5, 4.4, 4.3],name:'실업률',type:'scatter',mode:'lines',line:{color:'#7c3aed',width:2}},
+  {x:["2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01", "2025-07-01", "2025-08-01", "2025-09-01", "2025-10-01", "2025-11-01", "2025-12-01", "2026-01-01"],y:[4.57, 4.65, 4.83, 5.06, 5.08, 5.12, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.33, 5.13, 4.83, 4.64, 4.48, 4.33, 4.33, 4.33, 4.33, 4.33, 4.33, 4.33, 4.33, 4.22, 4.09, 3.88, 3.72, 3.64],name:'Fed Funds',type:'scatter',mode:'lines',line:{color:'#d97706',width:2}}
 ],{...fredCfg,yaxis:{...fredCfg.yaxis,ticksuffix:'%'}},fredOpt);
 Plotly.newPlot('fred3',[
-  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[4.15, 4.35, 4.51, 4.28, 3.78, 4.24, 4.54, 4.52],name:'10년물',type:'scatter',mode:'lines',line:{color:'#2563eb',width:2}},
-  {x:["2024-01", "2024-03", "2024-05", "2024-07", "2024-09", "2024-11", "2025-01", "2025-02"],y:[4.38, 4.62, 4.87, 4.51, 3.58, 4.15, 4.21, 4.27],name:'2년물',type:'scatter',mode:'lines',line:{color:'#dc2626',width:2}}
+  {x:["2025-12-30", "2025-12-31", "2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-12", "2026-01-13", "2026-01-14", "2026-01-15", "2026-01-16", "2026-01-20", "2026-01-21", "2026-01-22", "2026-01-23", "2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05", "2026-02-06", "2026-02-09", "2026-02-10", "2026-02-11", "2026-02-12", "2026-02-13", "2026-02-17"],y:[4.14, 4.18, 4.19, 4.17, 4.18, 4.15, 4.19, 4.18, 4.19, 4.18, 4.15, 4.17, 4.24, 4.3, 4.26, 4.26, 4.24, 4.22, 4.24, 4.26, 4.24, 4.26, 4.29, 4.28, 4.29, 4.21, 4.22, 4.22, 4.16, 4.18, 4.09, 4.04, 4.05],name:'10년물',type:'scatter',mode:'lines',line:{color:'#2563eb',width:2}},
+  {x:["2025-12-30", "2025-12-31", "2026-01-02", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-12", "2026-01-13", "2026-01-14", "2026-01-15", "2026-01-16", "2026-01-20", "2026-01-21", "2026-01-22", "2026-01-23", "2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05", "2026-02-06", "2026-02-09", "2026-02-10", "2026-02-11", "2026-02-12", "2026-02-13", "2026-02-17"],y:[3.45, 3.47, 3.47, 3.46, 3.47, 3.47, 3.49, 3.54, 3.54, 3.53, 3.51, 3.56, 3.59, 3.6, 3.6, 3.61, 3.6, 3.56, 3.53, 3.56, 3.53, 3.52, 3.57, 3.57, 3.57, 3.47, 3.5, 3.48, 3.45, 3.52, 3.47, 3.4, 3.43],name:'2년물',type:'scatter',mode:'lines',line:{color:'#dc2626',width:2}}
 ],{...fredCfg,yaxis:{...fredCfg.yaxis,ticksuffix:'%'}},fredOpt);
 </script>
 
@@ -530,9 +393,9 @@ Plotly.newPlot('fred3',[
 <script>
 // ====== MOVE & PCC 차트 ======
 (function(){
-  const xm=["2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02"];
-const mv=[104.5, 101.3, 112.5, 92.1, 90.3, 79.8, 79.4, 77.9, 66.6, 68.9, 64.0, 59.2, 68.8];
-const pcc=[0.72, 0.78, 0.91, 0.82, 0.75, 0.69, 0.81, 0.77, 0.88, 0.85, 0.79, 0.72, 0.82];
+  const xm=['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02'];
+  const mv=[112,108,98,118,96,92,88,98,85,102,98,105,97,92.4];
+  const pcc=[0.91,0.86,0.95,1.05,0.88,0.82,0.79,0.98,0.85,1.08,1.02,0.97,1.04,1.12];
   const base={margin:{t:10,b:40,l:55,r:10},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
     xaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},yaxis:{gridcolor:'#f1f5f9',tickfont:{size:10}},showlegend:false};
   const opt={responsive:true,displayModeBar:false};
@@ -602,7 +465,7 @@ function drawGauge(id, val, label) {
 
 window.addEventListener('load',function(){
   drawGauge('gauge-cnn', 38, 'Fear');
-  drawGauge('gauge-crypto', 8, 'Extreme Fear');
+  drawGauge('gauge-crypto', 9, 'Extreme Fear');
 });
 </script>
 
