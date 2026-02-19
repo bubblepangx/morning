@@ -328,6 +328,13 @@ def generate() -> str:
             ],
         })
 
+    # 검색 전 Claude 프리앰블 제거 (첫 번째 # 제목 이전 내용)
+    idx = full_text.find('\n# ')
+    if idx == -1:
+        idx = full_text.find('# ')
+    if idx > 0:
+        full_text = full_text[idx:].lstrip()
+
     print(f"  ✅ 브리핑 완료 (검색 {search_count}회, {len(full_text)}자)")
     return full_text
 
