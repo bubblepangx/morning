@@ -314,7 +314,7 @@ def generate() -> str:
                 search_count += 1
                 print(f"     [{search_count:02d}] {block.input.get('query', '')}")
             elif block.type == "text" and block.text.strip():
-                full_text = block.text
+                full_text += block.text
 
         if response.stop_reason == "end_turn" or not tool_uses:
             break
