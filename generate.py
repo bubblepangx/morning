@@ -65,7 +65,12 @@ SYSTEM_PROMPT = """당신은 Bloomberg·FT 25년 경력 선임 시장 기자 'Ma
 
 [사실 원칙]
 - 모든 수치는 실시간 웹 검색으로 확인. 추측 수치 절대 금지
-- 출처: Bloomberg, Reuters, CNBC, Yonhap, KRX, Fed, Treasury"""
+- 출처: Bloomberg, Reuters, CNBC, Yonhap, KRX, Fed, Treasury
+
+[출력 규칙 — 절대 준수]
+- 응답은 반드시 # 마크다운 제목으로 시작할 것
+- "검색합니다", "작성합니다", "확인합니다" 등 작업 과정 설명 일절 금지
+- 브리핑 본문 외의 메타 텍스트 출력 금지"""
 
 
 def build_prompt() -> str:
@@ -294,41 +299,25 @@ def generate() -> str:
     print(f"  🤖 Claude API 호출 ({now.strftime('%H:%M:%S')} KST)")
     print("  🔍 웹 검색 자동 수행 중:")
 
-    messages = [{"role": "user", "content": build_prompt()}]
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=8000,
+        system=SYSTEM_PROMPT,
+        tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 15}],
+        messages=[{"role": "user", "content": build_prompt()}],
+    )
+
+    # 모든 text 블록 누적 (web_search는 서버사이드 — 단일 응답에 여러 text 블록)
     full_text = ""
     search_count = 0
+    for block in response.content:
+        if block.type == "tool_use":
+            search_count += 1
+            print(f"     [{search_count:02d}] {block.input.get('query', '')}")
+        elif block.type == "text" and block.text.strip():
+            full_text += block.text
 
-    while True:
-        response = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=8000,
-            system=SYSTEM_PROMPT,
-            tools=[{"type": "web_search_20250305", "name": "web_search"}],
-            messages=messages,
-        )
-
-        tool_uses = []
-        for block in response.content:
-            if block.type == "tool_use":
-                tool_uses.append(block)
-                search_count += 1
-                print(f"     [{search_count:02d}] {block.input.get('query', '')}")
-            elif block.type == "text" and block.text.strip():
-                full_text += block.text
-
-        if response.stop_reason == "end_turn" or not tool_uses:
-            break
-
-        messages.append({"role": "assistant", "content": response.content})
-        messages.append({
-            "role": "user",
-            "content": [
-                {"type": "tool_result", "tool_use_id": tu.id, "content": ""}
-                for tu in tool_uses
-            ],
-        })
-
-    # 검색 전 Claude 프리앰블 제거 (첫 번째 # 제목 이전 내용)
+    # 안전망: # 제목 이전 프리앰블 제거
     idx = full_text.find('\n# ')
     if idx == -1:
         idx = full_text.find('# ')
